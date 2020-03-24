@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/favicon.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/assets/images/favicon.png?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Java,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="本文主要介绍  uid-generator （一种全局ID服务实现）  uid-generator介绍全局ID服务是分布式服务中的基础服务，需要保持全局唯一，高效，高可靠性。有些时候还可能要求保持单调，但也并非一定要严格递增或者递减 全局ID也可以通过数据库的自增主键来获取，但是如果要求QPS很高显然是不现实的 uid-generator是对Snowflake算法的改进，也引入了高性能队列dis">
+<meta name="keywords" content="Java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="改进版Snowflake全局ID生成器-uid-generator">
+<meta property="og:url" content="https://saltyx.github.io/2019/06/19/2019-06-19-uid-generator/index.html">
+<meta property="og:site_name" content="Focus on Java">
+<meta property="og:description" content="本文主要介绍  uid-generator （一种全局ID服务实现）  uid-generator介绍全局ID服务是分布式服务中的基础服务，需要保持全局唯一，高效，高可靠性。有些时候还可能要求保持单调，但也并非一定要严格递增或者递减 全局ID也可以通过数据库的自增主键来获取，但是如果要求QPS很高显然是不现实的 uid-generator是对Snowflake算法的改进，也引入了高性能队列dis">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-08-26T13:33:54.468Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="改进版Snowflake全局ID生成器-uid-generator">
+<meta name="twitter:description" content="本文主要介绍  uid-generator （一种全局ID服务实现）  uid-generator介绍全局ID服务是分布式服务中的基础服务，需要保持全局唯一，高效，高可靠性。有些时候还可能要求保持单调，但也并非一定要严格递增或者递减 全局ID也可以通过数据库的自增主键来获取，但是如果要求QPS很高显然是不现实的 uid-generator是对Snowflake算法的改进，也引入了高性能队列dis">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://saltyx.github.io/2019/06/19/2019-06-19-uid-generator/">
+
+
+
+
+
+  <title>改进版Snowflake全局ID生成器-uid-generator | Focus on Java</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Focus on Java</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://saltyx.github.io/2019/06/19/2019-06-19-uid-generator/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="shiyan">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Focus on Java">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">改进版Snowflake全局ID生成器-uid-generator</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-06-19T13:00:00+08:00">
+                2019-06-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/06/19/2019-06-19-uid-generator/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/06/19/2019-06-19-uid-generator/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>本文主要介绍  <a href="https://github.com/baidu/uid-generator" target="_blank" rel="noopener"><code>uid-generator</code></a> （一种全局ID服务实现）</p>
+</blockquote>
+<h2 id="uid-generator介绍"><a href="#uid-generator介绍" class="headerlink" title="uid-generator介绍"></a>uid-generator介绍</h2><p>全局ID服务是分布式服务中的基础服务，需要保持全局唯一，高效，高可靠性。有些时候还可能要求保持单调，但也并非一定要严格递增或者递减</p>
+<p>全局ID也可以通过数据库的自增主键来获取，但是如果要求QPS很高显然是不现实的</p>
+<p>uid-generator是对Snowflake算法的改进，也引入了高性能队列disruptor中RingBuffer思想，进一步提升了效率</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">+------+----------------------+----------------+-----------+</span><br><span class="line">| sign |     delta seconds    | worker node id | sequence  |</span><br><span class="line">+------+----------------------+----------------+-----------+</span><br><span class="line">  1bit          28bits              22bits         13bits</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>sign 符号位 保证为正数</p>
+</li>
+<li><p>delta seconds 当前时间与约定时间的差值</p>
+</li>
+<li><p>word node id机器码</p>
+</li>
+<li><p>sequence 同一时刻支持并发数</p>
+</li>
+</ul>
+<p>上图就是snowflake算法生成的64位的长整型构成</p>
+<p>uid-generator的work node id 使用了数据库自增主键的key，每次重启服务都需要刷新，这也保证了集群中全局ID的唯一性</p>
+<h2 id="worker-node-id字段处理"><a href="#worker-node-id字段处理" class="headerlink" title="worker node id字段处理"></a>worker node id字段处理</h2><p>uid-generator使用数据库主键作为worker node id</p>
+<p>这样看来这个worker node id其实可以有很丰富的扩展性，只要对表结构稍微修改，就可以记录使得worker node id 有更有意义的含义。</p>
+<p>例如使用uid-generator生成的值作为表的主键ID，可以通过对WORKER_NODE表增加一列表名记录表，这样通过id就反向查找对应的表名</p>
+<h2 id="sequence字段的处理"><a href="#sequence字段的处理" class="headerlink" title="sequence字段的处理"></a>sequence字段的处理</h2><p>uid-generator中实现了原生的snowflake以及缓存版的。这两个版本对于sequence字段的处理有所不同</p>
+<p><code>DefaultUidGenerator.java</code> </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* Get UID</span></span><br><span class="line"><span class="comment">*</span></span><br><span class="line"><span class="comment">* <span class="doctag">@return</span> UID</span></span><br><span class="line"><span class="comment">* <span class="doctag">@throws</span> UidGenerateException in the case: Clock moved backwards; Exceeds the max timestamp</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">synchronized</span> <span class="keyword">long</span> <span class="title">nextId</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">long</span> currentSecond = getCurrentSecond();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Clock moved backwards, refuse to generate uid</span></span><br><span class="line">    <span class="keyword">if</span> (currentSecond &lt; lastSecond) &#123;</span><br><span class="line">        <span class="keyword">long</span> refusedSeconds = lastSecond - currentSecond;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> UidGenerateException(<span class="string">"Clock moved backwards. Refusing for %d seconds"</span>, refusedSeconds);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// At the same second, increase sequence</span></span><br><span class="line">    <span class="keyword">if</span> (currentSecond == lastSecond) &#123;</span><br><span class="line">        sequence = (sequence + <span class="number">1</span>) &amp; bitsAllocator.getMaxSequence();</span><br><span class="line">        <span class="comment">// Exceed the max sequence, we wait the next second to generate uid</span></span><br><span class="line">        <span class="keyword">if</span> (sequence == <span class="number">0</span>) &#123;</span><br><span class="line">            currentSecond = getNextSecond(lastSecond);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// At the different second, sequence restart from zero</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        sequence = <span class="number">0L</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    lastSecond = currentSecond;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Allocate bits for UID</span></span><br><span class="line">    <span class="keyword">return</span> bitsAllocator.allocate(currentSecond - epochSeconds, workerId, sequence);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><code>DefaultUidGenerator</code> 并发通过 函数加锁控制；获取seq时通过时间判断是否需要调到下一秒</p>
+</blockquote>
+<p><code>CachedUidGenerator.java</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"> <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Padding buffer fill the slots until to catch the cursor</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">paddingBuffer</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    LOGGER.info(<span class="string">"Ready to padding buffer lastSecond:&#123;&#125;. &#123;&#125;"</span>, lastSecond.get(), ringBuffer);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// is still running</span></span><br><span class="line">    <span class="keyword">if</span> (!running.compareAndSet(<span class="keyword">false</span>, <span class="keyword">true</span>)) &#123;</span><br><span class="line">        LOGGER.info(<span class="string">"Padding buffer is still running. &#123;&#125;"</span>, ringBuffer);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// fill the rest slots until to catch the cursor</span></span><br><span class="line">    <span class="keyword">boolean</span> isFullRingBuffer = <span class="keyword">false</span>;</span><br><span class="line">    <span class="keyword">while</span> (!isFullRingBuffer) &#123;</span><br><span class="line">        List&lt;Long&gt; uidList = uidProvider.provide(lastSecond.incrementAndGet());</span><br><span class="line">        <span class="keyword">for</span> (Long uid : uidList) &#123;</span><br><span class="line">            isFullRingBuffer = !ringBuffer.put(uid);</span><br><span class="line">            <span class="keyword">if</span> (isFullRingBuffer) &#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// not running now</span></span><br><span class="line">    running.compareAndSet(<span class="keyword">true</span>, <span class="keyword">false</span>);</span><br><span class="line">    LOGGER.info(<span class="string">"End to padding buffer lastSecond:&#123;&#125;. &#123;&#125;"</span>, lastSecond.get(), ringBuffer);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><code>CachedUidGenerator</code> 加锁通过CAS操作；由于需要一次填充完缓存，所以选取了一次填充一秒内所有的seq，以此保证了seq在一秒内的唯一性。这样带来的一个小弊端是不能通过id看出来这个id生成的时间</p>
+</blockquote>
+<h2 id="CachedUidGenerator核心RingBuffer实现"><a href="#CachedUidGenerator核心RingBuffer实现" class="headerlink" title="CachedUidGenerator核心RingBuffer实现"></a>CachedUidGenerator核心RingBuffer实现</h2><p><code>RingBuffer</code>是一个环形数组，通过两个指针，<code>tail</code>、<code>cursor</code>来实现复用槽</p>
+<p>在这里需要介绍一下FalseShare陷阱，由于tail和cursor指针在高并发情况下变动频繁，如果tail，cursor处于同一个缓存中，将会频繁导致缓存失效，可以看到uid-generator已经考虑了这个问题</p>
+<p>通过对<code>PaddedAtomicLong</code>进行填充，保证了每一个long值都在不同的缓存行中，解决了这个问题</p>
+<p><code>RingBuffer</code>基本都用位运算取代了乘除以及取模计算，提高了计算效率</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Put an UID in the ring &amp; tail moved&lt;br&gt;</span></span><br><span class="line"><span class="comment">    * We use 'synchronized' to guarantee the UID fill in slot &amp; publish new tail sequence as atomic operations&lt;br&gt;</span></span><br><span class="line"><span class="comment">    * </span></span><br><span class="line"><span class="comment">    * &lt;b&gt;Note that: &lt;/b&gt; It is recommended to put UID in a serialize way, cause we once batch generate a series UIDs and put</span></span><br><span class="line"><span class="comment">    * the one by one into the buffer, so it is unnecessary put in multi-threads</span></span><br><span class="line"><span class="comment">    *</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@param</span> uid</span></span><br><span class="line"><span class="comment">    * <span class="doctag">@return</span> false means that the buffer is full, apply &#123;<span class="doctag">@link</span> RejectedPutBufferHandler&#125;</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">boolean</span> <span class="title">put</span><span class="params">(<span class="keyword">long</span> uid)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">long</span> currentTail = tail.get();</span><br><span class="line">    <span class="keyword">long</span> currentCursor = cursor.get();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// tail catches the cursor, means that you can't put any cause of RingBuffer is full</span></span><br><span class="line">    <span class="keyword">long</span> distance = currentTail - (currentCursor == START_POINT ? <span class="number">0</span> : currentCursor);</span><br><span class="line">    <span class="keyword">if</span> (distance == bufferSize - <span class="number">1</span>) &#123;</span><br><span class="line">        rejectedPutHandler.rejectPutBuffer(<span class="keyword">this</span>, uid);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 1. pre-check whether the flag is CAN_PUT_FLAG</span></span><br><span class="line">    <span class="keyword">int</span> nextTailIndex = calSlotIndex(currentTail + <span class="number">1</span>);</span><br><span class="line">    <span class="keyword">if</span> (flags[nextTailIndex].get() != CAN_PUT_FLAG) &#123;</span><br><span class="line">        rejectedPutHandler.rejectPutBuffer(<span class="keyword">this</span>, uid);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 2. put UID in the next slot</span></span><br><span class="line">    <span class="comment">// 3. update next slot' flag to CAN_TAKE_FLAG</span></span><br><span class="line">    <span class="comment">// 4. publish tail with sequence increase by one</span></span><br><span class="line">    slots[nextTailIndex] = uid;</span><br><span class="line">    flags[nextTailIndex].set(CAN_TAKE_FLAG);</span><br><span class="line">    tail.incrementAndGet();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// The atomicity of operations above, guarantees by 'synchronized'. In another word,</span></span><br><span class="line">    <span class="comment">// the take operation can't consume the UID we just put, until the tail is published(tail.incrementAndGet())</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在<code>RingBuffer</code>的put方法中可以看到整个的流程，首先是函数加锁，加锁的原因在注释部分也解释了，由于是每次批量存入的，多线程put操作是没有必要的，之后第一步计算tail与cursor距离当前数组是否还可以继续填充。这里还有另外一个标识位用来判断当前槽是否可以做PUT以及TAKE操作，更像是双保险，防止上一个判断距离结束了之后tail位置有变动，导致槽位被覆盖</p>
+<p>同样对于take操作</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Take an UID of the ring at the next cursor, this is a lock free operation by using atomic cursor&lt;p&gt;</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * Before getting the UID, we also check whether reach the padding threshold, </span></span><br><span class="line"><span class="comment"> * the padding buffer operation will be triggered in another thread&lt;br&gt;</span></span><br><span class="line"><span class="comment"> * If there is no more available UID to be taken, the specified &#123;<span class="doctag">@link</span> RejectedTakeBufferHandler&#125; will be applied&lt;br&gt;</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * <span class="doctag">@return</span> UID</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@throws</span> IllegalStateException if the cursor moved back</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">long</span> <span class="title">take</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// spin get next available cursor</span></span><br><span class="line">    <span class="keyword">long</span> currentCursor = cursor.get();</span><br><span class="line">    <span class="keyword">long</span> nextCursor = cursor.updateAndGet(old -&gt; old == tail.get() ? old : old + <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// check for safety consideration, it never occurs</span></span><br><span class="line">    Assert.isTrue(nextCursor &gt;= currentCursor, <span class="string">"Curosr can't move back"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// trigger padding in an async-mode if reach the threshold</span></span><br><span class="line">    <span class="keyword">long</span> currentTail = tail.get();</span><br><span class="line">    <span class="keyword">if</span> (currentTail - nextCursor &lt; paddingThreshold) &#123;</span><br><span class="line">        LOGGER.info(<span class="string">"Reach the padding threshold:&#123;&#125;. tail:&#123;&#125;, cursor:&#123;&#125;, rest:&#123;&#125;"</span>, paddingThreshold, currentTail,</span><br><span class="line">                nextCursor, currentTail - nextCursor);</span><br><span class="line">        bufferPaddingExecutor.asyncPadding();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// cursor catch the tail, means that there is no more available UID to take</span></span><br><span class="line">    <span class="keyword">if</span> (nextCursor == currentCursor) &#123;</span><br><span class="line">        rejectedTakeHandler.rejectTakeBuffer(<span class="keyword">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 1. check next slot flag is CAN_TAKE_FLAG</span></span><br><span class="line">    <span class="keyword">int</span> nextCursorIndex = calSlotIndex(nextCursor);</span><br><span class="line">    Assert.isTrue(flags[nextCursorIndex].get() == CAN_TAKE_FLAG, <span class="string">"Curosr not in can take status"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 2. get UID from next slot</span></span><br><span class="line">    <span class="comment">// 3. set next slot flag as CAN_PUT_FLAG.</span></span><br><span class="line">    <span class="keyword">long</span> uid = slots[nextCursorIndex];</span><br><span class="line">    flags[nextCursorIndex].set(CAN_PUT_FLAG);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Note that: Step 2,3 can not swap. If we set flag before get value of slot, the producer may overwrite the</span></span><br><span class="line">    <span class="comment">// slot with a new UID, and this may cause the consumer take the UID twice after walk a round the ring</span></span><br><span class="line">    <span class="keyword">return</span> uid;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>正如注释中所说，take部分并没有并发限制，在剩余可用槽位小于一个阈值的时候，会触发一次填充操作</p>
+<p><code>CachedUidGenerator</code> 对于填充有两种处理，一个是低于阈值填充，一种是开启Schedule，定时填充，定时填充可选</p>
+<p>uid-generator可靠性很高，除了workid依赖数据库之外基本不依赖外部中间件，全局ID在分布式服务中扮演关键角色，一旦服务出错，解决起来也很棘手。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    shiyan
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://saltyx.github.io/2019/06/19/2019-06-19-uid-generator/" title="改进版Snowflake全局ID生成器-uid-generator">https://saltyx.github.io/2019/06/19/2019-06-19-uid-generator/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/11/08/2018-11-08-Java bytecode/" rel="next" title="译-Java字节码：学会字节码，更上一层楼">
+                <i class="fa fa-chevron-left"></i> 译-Java字节码：学会字节码，更上一层楼
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/07/06/2019-07-06-genericobjectpool/" rel="prev" title="GenericObjectPool对象池实战">
+                GenericObjectPool对象池实战 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">shiyan</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/saltyx" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:shiyan9128@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#uid-generator介绍"><span class="nav-number">1.</span> <span class="nav-text">uid-generator介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#worker-node-id字段处理"><span class="nav-number">2.</span> <span class="nav-text">worker node id字段处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#sequence字段的处理"><span class="nav-number">3.</span> <span class="nav-text">sequence字段的处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CachedUidGenerator核心RingBuffer实现"><span class="nav-number">4.</span> <span class="nav-text">CachedUidGenerator核心RingBuffer实现</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shiyan</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://shiy4n.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'https://saltyx.github.io/2019/06/19/2019-06-19-uid-generator/';
+          this.page.identifier = '2019/06/19/2019-06-19-uid-generator/';
+          this.page.title = '改进版Snowflake全局ID生成器-uid-generator';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://shiy4n.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

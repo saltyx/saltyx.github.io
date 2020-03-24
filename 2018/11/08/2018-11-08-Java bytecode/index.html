@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/favicon.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/assets/images/favicon.png?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Java,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="下文中有关字节码的内容和字节码本身，是基于Java 2 SDK标准版 v1.2.1 javac compiler. 不同的编译器生成的字节码或略有不同  为何要了解字节码？字节码作为 Java 程序的中间语言 正如汇编是 C/C++程序的中间语言。顶级的C/C++程序员是知道他们的程序编译出来的汇编指令集的。在做性能和内存调优的时候，这种技能至关重要的。了解你的代码编译出来的汇编指令，会对你实现">
+<meta name="keywords" content="Java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="译-Java字节码：学会字节码，更上一层楼">
+<meta property="og:url" content="https://saltyx.github.io/2018/11/08/2018-11-08-Java bytecode/index.html">
+<meta property="og:site_name" content="Focus on Java">
+<meta property="og:description" content="下文中有关字节码的内容和字节码本身，是基于Java 2 SDK标准版 v1.2.1 javac compiler. 不同的编译器生成的字节码或略有不同  为何要了解字节码？字节码作为 Java 程序的中间语言 正如汇编是 C/C++程序的中间语言。顶级的C/C++程序员是知道他们的程序编译出来的汇编指令集的。在做性能和内存调优的时候，这种技能至关重要的。了解你的代码编译出来的汇编指令，会对你实现">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://saltyx.github.io/assets/images/20181112/fig01.gif">
+<meta property="og:image" content="https://saltyx.github.io/assets/images/20181112/fig02.gif">
+<meta property="og:image" content="https://saltyx.github.io/assets/images/20181112/fig03.gif">
+<meta property="og:updated_time" content="2019-08-26T13:33:46.044Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="译-Java字节码：学会字节码，更上一层楼">
+<meta name="twitter:description" content="下文中有关字节码的内容和字节码本身，是基于Java 2 SDK标准版 v1.2.1 javac compiler. 不同的编译器生成的字节码或略有不同  为何要了解字节码？字节码作为 Java 程序的中间语言 正如汇编是 C/C++程序的中间语言。顶级的C/C++程序员是知道他们的程序编译出来的汇编指令集的。在做性能和内存调优的时候，这种技能至关重要的。了解你的代码编译出来的汇编指令，会对你实现">
+<meta name="twitter:image" content="https://saltyx.github.io/assets/images/20181112/fig01.gif">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://saltyx.github.io/2018/11/08/2018-11-08-Java bytecode/">
+
+
+
+
+
+  <title>译-Java字节码：学会字节码，更上一层楼 | Focus on Java</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Focus on Java</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://saltyx.github.io/2018/11/08/2018-11-08-Java bytecode/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="shiyan">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Focus on Java">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">译-Java字节码：学会字节码，更上一层楼</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-08T14:24:00+08:00">
+                2018-11-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/11/08/2018-11-08-Java bytecode/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/11/08/2018-11-08-Java bytecode/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>下文中有关字节码的内容和字节码本身，是基于Java 2 SDK标准版 v1.2.1 javac compiler. 不同的编译器生成的字节码或略有不同</p>
+</blockquote>
+<h2 id="为何要了解字节码？"><a href="#为何要了解字节码？" class="headerlink" title="为何要了解字节码？"></a>为何要了解字节码？</h2><p>字节码作为 Java 程序的中间语言 正如汇编是 C/C++程序的中间语言。顶级的C/C++程序员是知道他们的程序编译出来的汇编指令集的。在做性能和内存调优的时候，这种技能至关重要的。了解你的代码编译出来的汇编指令，会对你实现性能和内存目标时有所启发。此外，当在追踪一个问题时，用调试器反汇编源码，一步一步执行汇编代码，通常很有用</p>
+<p>Java 经常被忽视的部分就是 字节码，对于Java程序员，理解 字节码 和Java编译器可能生成的字节码 就像 C/C++程序员理解汇编一样有益</p>
+<p>字节码就是你的程序。不管JIT 或者hotspot runtime （即时编译器）,字节码在你的代码的执行速度和大小上占着重要的一部分。考虑一下，你生成越多的字节码，那么class文件就越大，JIT或者hotpot runtime就要编译更多的字节。下面就带你深入了解下Java字节码。</p>
+<h2 id="生成字节码"><a href="#生成字节码" class="headerlink" title="生成字节码"></a>生成字节码</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">javac Employee.java</span><br><span class="line">javap -c Employee &gt; Employee.bc</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">Compiled from Employee.java</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Employee</span> <span class="keyword">extends</span> <span class="title">java</span>.<span class="title">lang</span>.<span class="title">Object</span> </span>&#123;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">Employee</span><span class="params">(java.lang.String,<span class="keyword">int</span>)</span></span>;</span><br><span class="line"><span class="keyword">public</span> java.lang.<span class="function">String <span class="title">employeeName</span><span class="params">()</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">employeeNumber</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function">Method <span class="title">Employee</span><span class="params">(java.lang.String,<span class="keyword">int</span>)</span></span></span><br><span class="line"><span class="function">0 aload_0</span></span><br><span class="line"><span class="function">1 invokespecial #3 &lt;Method java.lang.<span class="title">Object</span><span class="params">()</span>&gt;</span></span><br><span class="line"><span class="function">4 aload_0</span></span><br><span class="line"><span class="function">5 aload_1</span></span><br><span class="line"><span class="function">6 putfield #5 &lt;Field java.lang.String name&gt;</span></span><br><span class="line"><span class="function">9 aload_0</span></span><br><span class="line"><span class="function">10 iload_2</span></span><br><span class="line"><span class="function">11 putfield #4 &lt;Field <span class="keyword">int</span> idNumber&gt;</span></span><br><span class="line"><span class="function">14 aload_0</span></span><br><span class="line"><span class="function">15 aload_1</span></span><br><span class="line"><span class="function">16 iload_2</span></span><br><span class="line"><span class="function">17 invokespecial #6 &lt;Method <span class="keyword">void</span> <span class="title">storeData</span><span class="params">(java.lang.String, <span class="keyword">int</span>)</span>&gt;</span></span><br><span class="line"><span class="function">20 return</span></span><br><span class="line"><span class="function"> </span></span><br><span class="line"><span class="function">Method java.lang.String <span class="title">employeeName</span><span class="params">()</span></span></span><br><span class="line"><span class="function">0 aload_0</span></span><br><span class="line"><span class="function">1 getfield #5 &lt;Field java.lang.String name&gt;</span></span><br><span class="line"><span class="function">4 areturn</span></span><br><span class="line"><span class="function"> </span></span><br><span class="line"><span class="function">Method <span class="keyword">int</span> <span class="title">employeeNumber</span><span class="params">()</span></span></span><br><span class="line"><span class="function">0 aload_0</span></span><br><span class="line"><span class="function">1 getfield #4 &lt;Field <span class="keyword">int</span> idNumber&gt;</span></span><br><span class="line"><span class="function">4 ireturn</span></span><br><span class="line"><span class="function"> </span></span><br><span class="line"><span class="function">Method <span class="keyword">void</span> <span class="title">storeData</span><span class="params">(java.lang.String, <span class="keyword">int</span>)</span></span></span><br><span class="line"><span class="function">0 return</span></span><br></pre></td></tr></table></figure>
+
+<p>这个类十分简单，包含了两个成员变量，一个构造函数，和三个方法。字节码文件前五行列出了源代码文件名，类的定义以及它的基类（默认所有类继承与java.lang.Object），和构造函数和类方法，再之后列出了每一个构造函数的字节码，再后面是按照字母序列出来的类方法的字节码</p>
+<p>你可能已经注意到某些操作码是以<code>i</code>或者<code>a</code>开头的。例如，在Employee类构造器，你能看到 <code>aload_0</code> 和 <code>iload_2</code> 。这些前缀表示了操作码使用的类型。前缀 a 意味着 这个操作码 正在操作一个对象的引用。前缀 i 意味着这个操作码正在操作一个整数。其他操作码用 b 表示byte， c 表示char，d表示double，等等等等。操作码的前缀让你一眼看出来正在被操作的数据类型</p>
+<blockquote>
+<blockquote>
+<p>注意：单个的代码通常被成为操作码，多个操作码通常被称作字节码</p>
+</blockquote>
+</blockquote>
+<h2 id="细节"><a href="#细节" class="headerlink" title="细节"></a>细节</h2><p>为了理解字节码的细节，我们需要讨论下Java虚拟机（JVM）是如何处理字节码的执行。JVM是基于堆栈的。每个线程都有一个JVM存储栈帧的栈，每当一个方法被调用，一个栈帧就会被创建出来，一个栈帧包括了一个操作数栈，一个局部变量表，以及这个类的当前方法的运行时常量池的引用。从概念上来说，它类似于:</p>
+<p><img src="/assets/images/20181112/fig01.gif" alt="A frame"></p>
+<p>本地变量的列表,也被称为本地变量表，包含有这个方法的入参以及被用来保留本地变量的值。列表开始与0，最开始存储的是方法的入参。如果这是一个构造函数或者一个成员函数，存储在0位的是实例的引用（this），之后第一位保存着第一个正式的参数，第二位保留着第二个正式的参数，以此类推。对一个静态方法，0位存储的是第一个正式的入参，1位存储的第二个正式的入参，以此类推。</p>
+<p>本地变量表的大小在编译时间就已经确定了，取决于本地变量的数量和方法的参数。操作数栈是一个用来PUSH/POP值的后进先出（LIFO）的堆栈。它的大小也依然是在编译的时候就确定了。某些操作码PUSH值到操作数栈;其余的从操作数栈中获取操作码，操作他们，并且PUSH进入结果。操作数栈同样用来接收方法的返回值</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">employeeName</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"><span class="keyword">return</span> name;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line">Method java.lang.<span class="function">String <span class="title">employeeName</span><span class="params">()</span></span></span><br><span class="line"><span class="function">0 aload_0</span></span><br><span class="line"><span class="function">1 getfield #5 &lt;Field java.lang.String name&gt;</span></span><br><span class="line"><span class="function">4 areturn</span></span><br></pre></td></tr></table></figure>
+
+<p>这个方法的字节码包含了三个操作码。第一个是aload_0，它对应的操作是：把本地变量表的首位压入到操作数栈中。前面提到本地变量表是用来传递方法的参数。对于构造函数和成员函数，this引用总是存储在本地变量表的首位（下标为0）。this变量必须被压入栈中，因为这个方法正在访问这个类的数据，名称。</p>
+<p>下一次操作码，getfield 用于获取类的实例域。当操作码被执行后，栈顶数据（this）会被取出来。那么，#5 用来构建这个运行时实例池中对应name的引用的序号。当这个引用被获取后，压入操作数栈中。</p>
+<p>最后一个操作码，areturn，返回方法的引用。更详细点，areturn的执行会导致操作数堆栈的顶部数据，即name的引用被弹出，并压入调用方法的操作数堆栈。</p>
+<p>employeeName的方法非常简单。在我们看更复杂的例子之前，我们需要检查下每个操作码左边的数值。在employeeName 方法的字节码中，这些值是0，1，4。每一个方法都有一个对应的操作码数组。这些值相当于这些存储操作码和它的参数的数组的下标。你可能会好奇为什么这些数据不是连续的。既然每个字节码每个指令占用一个字节，那么为什么序号不是0，1，2？原因是一些操作码是带有参数的，这些参数会占用一定的字节码的数组。例如 aload_0 指令没有参数，自然就只占用一个字节。因此，下一个操作码，getfield,在位置1。但是areturn是在位置4。这是因为getfield操作码和他的参数占了位置1,2,3。位置1用于getfield的操作码，位置2和位置3用来存储它的参数。这些参数用来构造在这个类中这个值在运行是常量池中存储的位置。下面的表中展示了employeeName 字节码数组 的样子：</p>
+<p><img src="/assets/images/20181112/fig02.gif" alt="Bytecode array for employeeName method"></p>
+<p>事实上，字节码数组包含的代表指令的字节。查看用十六进制的编辑器查看.class文件，你会在字节码数组中看到下面的值：</p>
+<p><img src="/assets/images/20181112/fig03.gif" alt="Values in the bytecode array"></p>
+<p>2A，B4，和B0 分别相当于 aload_0, getfield, areturn</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">Employee</span><span class="params">(String strName, <span class="keyword">int</span> num)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">name = strName;</span><br><span class="line">idNumber = num;</span><br><span class="line">storeData(strName, num);</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line"><span class="function">Method <span class="title">Employee</span><span class="params">(java.lang.String,<span class="keyword">int</span>)</span></span></span><br><span class="line"><span class="function">0 aload_0</span></span><br><span class="line"><span class="function">1 invokespecial #3 &lt;Method java.lang.<span class="title">Object</span><span class="params">()</span>&gt;</span></span><br><span class="line"><span class="function">4 aload_0</span></span><br><span class="line"><span class="function">5 aload_1</span></span><br><span class="line"><span class="function">6 putfield #5 &lt;Field java.lang.String name&gt;</span></span><br><span class="line"><span class="function">9 aload_0</span></span><br><span class="line"><span class="function">10 iload_2</span></span><br><span class="line"><span class="function">11 putfield #4 &lt;Field <span class="keyword">int</span> idNumber&gt;</span></span><br><span class="line"><span class="function">14 aload_0</span></span><br><span class="line"><span class="function">15 aload_1</span></span><br><span class="line"><span class="function">16 iload_2</span></span><br><span class="line"><span class="function">17 invokespecial #6 &lt;Method <span class="keyword">void</span> <span class="title">storeData</span><span class="params">(java.lang.String, <span class="keyword">int</span>)</span>&gt;</span></span><br><span class="line"><span class="function">20 return</span></span><br></pre></td></tr></table></figure>
+
+<p>第一个在位置0的操作码指令，aload_0 将this引用压入操作码栈。（记住，实例方法和构造函数的本地变量表中第一个条目是this引用）</p>
+<p>下一个在位置1的操作码指令，invokespecial，调用了基类的构造函数。因为所有没有明确指定继承任意其他的类都隐式地继承java.lang.Object类，编译器提供了必要的字节码去调用基类的构造函数。在这个操作码执行过程中，操作数栈的栈顶数据，this，被弹出。</p>
+<p>下面再位置4，5的两个操作码，压入本地变量表中最开始的两个条目到操作数堆栈中。第一个被压入的值是this，第二个是第构造函数一个正式的参数，strName。这些压入的值都是为了在位置6的putfield操作码做准备。</p>
+<p>putfield 操作码 抛出栈顶的2个值，并且将strName的引用存储到被this引用的实例数据名。</p>
+<p>下面三个在位置9，10，11的操作码指令，用构造函数第二个正式的参数num，和实例的变量，idNumber，执行着相同的操作。 </p>
+<p>下面三个在位置14，15，16的操作码指令，是在为调用storeDate方法准备数据。这些指令分别压入this引用，strName和num。this引入一定要被压入栈中，因为一个实例方法被调用。如果一个方式是静态的，那么this引用则不需要被压入。strName和num被压入是因为他们是storeData方法的参数。当storeData方法执行时，this，strName，num会分别占据那个方法的栈帧中的本地变量表中的序号为0，1，2的位置。</p>
+<h2 id="大小和速度问题"><a href="#大小和速度问题" class="headerlink" title="大小和速度问题"></a>大小和速度问题</h2><p>性能对于许多使用Java的桌面和服务器系统是一个关键问题。随着Java从这些系统转移到更小的嵌入式设备，大小问题也变得重要了。了解Java生成的字节码可以帮助你写出更精简，更有效的代码。举例来说，Java中的同步。下面的两个方法返回一个数组中第一位元素。两种方法使用同步方式，并且是功能等同的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">int</span> <span class="title">top1</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">return</span> intArr[<span class="number">0</span>];</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">top2</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"> <span class="keyword">synchronized</span> (<span class="keyword">this</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> intArr[<span class="number">0</span>];</span><br><span class="line"> &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>尽管这些方法使用的同步是不同的，但是是功能等同的。但是，不宜察觉出来，两段代码在性能和大小上是不同的。在这个例子中，top1大概比top2快13个点，并且更小。检查下生成的字节码就明白这些方法有何不同了。字节码上加的注释是为了帮助更好的理解操作码做了什么。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Method <span class="keyword">int</span> <span class="title">top1</span><span class="params">()</span></span></span><br><span class="line"><span class="function">   0 aload_0           <span class="comment">//Push the object reference(this) at index     将this压入本地变量表首位</span></span></span><br><span class="line"><span class="function">                       <span class="comment">//0 of the local variable table.</span></span></span><br><span class="line"><span class="function">   1 getfield #6 &lt;Field <span class="keyword">int</span> intArr[]&gt;</span></span><br><span class="line"><span class="function">                       <span class="comment">//Pop the object reference(this) and push      弹出this，从常量池中压入intArr对象引用</span></span></span><br><span class="line"><span class="function">                       <span class="comment">//the object reference for intArr accessed</span></span></span><br><span class="line"><span class="function">                       <span class="comment">//from the constant pool.</span></span></span><br><span class="line"><span class="function">   4 iconst_0          <span class="comment">//Push 0.                                      压入0</span></span></span><br><span class="line"><span class="function">   5 iaload            <span class="comment">//Pop the top two values and push the          弹出最顶部两个数据，压入intArr[0]</span></span></span><br><span class="line"><span class="function">                       <span class="comment">//value at index 0 of intArr.</span></span></span><br><span class="line"><span class="function">   6 ireturn           <span class="comment">//Pop top value and push it on the operand     弹出顶部值，压入调用方法操作数堆栈中，退出</span></span></span><br><span class="line"><span class="function">                       <span class="comment">//stack of the invoking method. Exit.</span></span></span><br><span class="line"><span class="function"> </span></span><br><span class="line"><span class="function">Method <span class="keyword">int</span> <span class="title">top2</span><span class="params">()</span></span></span><br><span class="line"><span class="function">   0 aload_0           <span class="comment">//Push the object reference(this) at index     将this压入本地变量表首位</span></span></span><br><span class="line"><span class="function">                       <span class="comment">//0 of the local variable table.</span></span></span><br><span class="line"><span class="function">   1 astore_2          <span class="comment">//Pop the object reference(this) and store     弹出this，存储到本地变量表下标为2的位置</span></span></span><br><span class="line"><span class="function">                       <span class="comment">//at index 2 of the local variable table.</span></span></span><br><span class="line"><span class="function">   2 aload_2           <span class="comment">//Push the object reference(this).             压入this</span></span></span><br><span class="line"><span class="function">   3 monitorenter      <span class="comment">//Pop the object reference(this) and           弹出this，并获取对象monitor</span></span></span><br><span class="line"><span class="function">                       <span class="comment">//acquire the object's monitor.</span></span></span><br><span class="line"><span class="function">   4 aload_0           <span class="comment">//Beginning of the synchronized block.         开始同步块。压入this到本地变量表首位</span></span></span><br><span class="line"><span class="function">                       <span class="comment">//Push the object reference(this) at index</span></span></span><br><span class="line"><span class="function">                       <span class="comment">//0 of the local variable table.</span></span></span><br><span class="line"><span class="function">   5 getfield #6 &lt;Field <span class="keyword">int</span> intArr[]&gt;                                 </span></span><br><span class="line"><span class="function">                       <span class="comment">//Pop the object reference(this) and push      弹出this，压入intArr的引用</span></span></span><br><span class="line"><span class="function">                       <span class="comment">//the object reference for intArr accessed</span></span></span><br><span class="line"><span class="function">                       <span class="comment">//from the constant pool.</span></span></span><br><span class="line"><span class="function">   8 iconst_0          <span class="comment">//Push 0.                                      压入0</span></span></span><br><span class="line"><span class="function">   9 iaload            <span class="comment">//Pop the top two values and push the          弹出最顶部两个数据，压入intArr[0]</span></span></span><br><span class="line"><span class="function">                       <span class="comment">//value at index 0 of intArr.</span></span></span><br><span class="line"><span class="function">  10 istore_1          <span class="comment">//Pop the value and store it at index 1 of     弹出这个值并存储在本地变量表下标为1的位置</span></span></span><br><span class="line"><span class="function">                       <span class="comment">//the local variable table.</span></span></span><br><span class="line"><span class="function">  11 jsr 19            <span class="comment">//Push the address of the next opcode(14)      压入下一个操作码地址，跳到位置19</span></span></span><br><span class="line"><span class="function">                       <span class="comment">//and jump to location 19.</span></span></span><br><span class="line"><span class="function">  14 iload_1           <span class="comment">//Push the value at index 1 of the local       压入本地变更量表中下标为1的值</span></span></span><br><span class="line"><span class="function">                       <span class="comment">//variable table.</span></span></span><br><span class="line"><span class="function">  15 ireturn           <span class="comment">//Pop top value and push it on the operand     弹出顶部的值，并压入调用方法的操作数堆栈，退出</span></span></span><br><span class="line"><span class="function">                       <span class="comment">//stack of the invoking method. Exit.</span></span></span><br><span class="line"><span class="function">  16 aload_2           <span class="comment">//End of the synchronized block. Push the      同步块结束。压入this到本地变量表下标为2的位置</span></span></span><br><span class="line"><span class="function">                       <span class="comment">//object reference(this) at index 2 of the</span></span></span><br><span class="line"><span class="function">                       <span class="comment">//local variable table.</span></span></span><br><span class="line"><span class="function">  17 monitorexit       <span class="comment">//Pop the object reference(this) and exit      弹出this，并退出monitor</span></span></span><br><span class="line"><span class="function">                       <span class="comment">//the monitor.</span></span></span><br><span class="line"><span class="function">  18 athrow            <span class="comment">//Pop the object reference(this) and throw     弹出this，并抛出一个异常</span></span></span><br><span class="line"><span class="function">                       <span class="comment">//an exception.</span></span></span><br><span class="line"><span class="function">  19 astore_3          <span class="comment">//Pop the return address(14) and store it      弹出返回地址（14）并存储在本地变量表下标为3的位置</span></span></span><br><span class="line"><span class="function">                       <span class="comment">//at index 3 of the local variable table.</span></span></span><br><span class="line"><span class="function">  20 aload_2           <span class="comment">//Push the object reference(this) at           压入this</span></span></span><br><span class="line"><span class="function">                       <span class="comment">//index 2 of the local variable table.</span></span></span><br><span class="line"><span class="function">  21 monitorexit       <span class="comment">//Pop the object reference(this) and exit      弹出this，推出monitor</span></span></span><br><span class="line"><span class="function">                       <span class="comment">//the monitor.</span></span></span><br><span class="line"><span class="function">  22 ret 3             <span class="comment">//Return to the location indicated by          返回本地变量表中下标为3的值对应的地址（14）</span></span></span><br><span class="line"><span class="function">                       <span class="comment">//index 3 of the local variable table(14).</span></span></span><br><span class="line"><span class="function">Exception table:       <span class="comment">//If any exception occurs between              如果在位置4（含位置4）和位置16（不含位置16）中出现异常</span></span></span><br><span class="line"><span class="function">from to target type    <span class="comment">//location 4 (inclusive) and location          跳到位置16</span></span></span><br><span class="line"><span class="function"> 4   16   16   any     <span class="comment">//16 (exclusive) jump to location 16.</span></span></span><br></pre></td></tr></table></figure>
+
+<p>top2方法更大更慢，原因在于同步以及异常处理。注意到top1方法使用的是synchronized方法修饰符，这样没有生成多余的字节码。相比之下，top2使用了在方法中使用了synchronized同步块。</p>
+<p>在方法中使用synchronized同步块会生成monitorenter和monitorexit的操作码，以及生成附加的代码去处理异常。如果在执行同步块中的代码时抛出了异常，锁需要保证在退出同步块的之前被释放。top1的实现略微比top2高效；这可以产生非常小的性能增益。</p>
+<p>当存在synchronized方法修饰符时，就像top1，获取锁和后续释放锁就不同是通过monitorenter和monitorexit来完成的了。不同的是，当JVM调用一个方法，它会检查ACC_SYNCHRONIZED属性标记。如果存在这个表标记，执行的线程会获取锁，调用方法，之后当方法返回时释放锁。如果在这个同步的方法中有异常抛出，锁会在异常离开方法时候自动释放。</p>
+<blockquote>
+<blockquote>
+<p>注意：如果synchronized方法修饰符存在，ACC_SYNCHROINZED属性标记包含在方法的method_info结构中。</p>
+</blockquote>
+</blockquote>
+<p>无论使用synchronized方法修饰符还是synchronized方法块，在大小上都会有影响。仅仅当你的代码要求同步，并且你了解因此带来的消耗的时候，使用同步方法。如果整个方法都需要同步，为了产生更小的和稍微快点的方法，相比同步块，我推荐方法修饰符。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    shiyan
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://saltyx.github.io/2018/11/08/2018-11-08-Java bytecode/" title="译-Java字节码：学会字节码，更上一层楼">https://saltyx.github.io/2018/11/08/2018-11-08-Java bytecode/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/07/08/2018-07-08-JAVA逆变与协变/" rel="next" title="2018-07-08-Java逆变与协变">
+                <i class="fa fa-chevron-left"></i> 2018-07-08-Java逆变与协变
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/06/19/2019-06-19-uid-generator/" rel="prev" title="改进版Snowflake全局ID生成器-uid-generator">
+                改进版Snowflake全局ID生成器-uid-generator <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">shiyan</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/saltyx" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:shiyan9128@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#为何要了解字节码？"><span class="nav-number">1.</span> <span class="nav-text">为何要了解字节码？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#生成字节码"><span class="nav-number">2.</span> <span class="nav-text">生成字节码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#细节"><span class="nav-number">3.</span> <span class="nav-text">细节</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#大小和速度问题"><span class="nav-number">4.</span> <span class="nav-text">大小和速度问题</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shiyan</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://shiy4n.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'https://saltyx.github.io/2018/11/08/2018-11-08-Java bytecode/';
+          this.page.identifier = '2018/11/08/2018-11-08-Java bytecode/';
+          this.page.title = '译-Java字节码：学会字节码，更上一层楼';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://shiy4n.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

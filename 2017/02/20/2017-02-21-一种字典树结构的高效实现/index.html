@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/favicon.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/assets/images/favicon.png?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="数据结构,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前段时间逛论坛，发现了一篇高效的字典树实现论文，很有意思。  常见的字典树实现方法1234567class Node&amp;#123;                              uint node ;  uint[] next;  &amp;#125;;```                      或者类似如下结构  class Node{  uint node;  map&amp;lt;&amp;gt;">
+<meta name="keywords" content="数据结构">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一种字典树结构的高效实现">
+<meta property="og:url" content="https://saltyx.github.io/2017/02/20/2017-02-21-一种字典树结构的高效实现/index.html">
+<meta property="og:site_name" content="Focus on Java">
+<meta property="og:description" content="前段时间逛论坛，发现了一篇高效的字典树实现论文，很有意思。  常见的字典树实现方法1234567class Node&amp;#123;                              uint node ;  uint[] next;  &amp;#125;;```                      或者类似如下结构  class Node{  uint node;  map&amp;lt;&amp;gt;">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-08-26T13:36:14.924Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="一种字典树结构的高效实现">
+<meta name="twitter:description" content="前段时间逛论坛，发现了一篇高效的字典树实现论文，很有意思。  常见的字典树实现方法1234567class Node&amp;#123;                              uint node ;  uint[] next;  &amp;#125;;```                      或者类似如下结构  class Node{  uint node;  map&amp;lt;&amp;gt;">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://saltyx.github.io/2017/02/20/2017-02-21-一种字典树结构的高效实现/">
+
+
+
+
+
+  <title>一种字典树结构的高效实现 | Focus on Java</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Focus on Java</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://saltyx.github.io/2017/02/20/2017-02-21-一种字典树结构的高效实现/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="shiyan">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Focus on Java">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">一种字典树结构的高效实现</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-02-20T15:16:24+08:00">
+                2017-02-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/02/20/2017-02-21-一种字典树结构的高效实现/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/02/20/2017-02-21-一种字典树结构的高效实现/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>前段时间逛论坛，发现了一篇高效的字典树实现论文，很有意思。</p>
+</blockquote>
+<h2 id="常见的字典树实现方法"><a href="#常见的字典树实现方法" class="headerlink" title="常见的字典树实现方法"></a>常见的字典树实现方法</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">class Node&#123;                            </span><br><span class="line">  uint node ;</span><br><span class="line">  uint[] next;  </span><br><span class="line">&#125;;</span><br><span class="line">```                      </span><br><span class="line"></span><br><span class="line">或者类似如下结构</span><br></pre></td></tr></table></figure>
+
+<p>class Node{<br>  uint node;<br>  map&lt;&gt; next;<br>}</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">第一种保证了查找效率，但是对于字典树这种稀疏数组，空间利用率比较低，特别是遇到中文日文这种，会造成空间极大浪费。因此，部分选择了第二种实现，当然第二种可以保证空间，但是却是在牺牲了效率的基础上的改进。map的查找速度```O(logn)```肯定不如数组```O(1)```快。</span><br><span class="line"></span><br><span class="line">## 另一种高效实现</span><br><span class="line"></span><br><span class="line">下面介绍另一种实现，它将字典树用base, check数组存储起来，不仅压缩了数组，而且不降低查找效率。这就是双数组字典树(Double array trie) 。这种字典树原理很简单，即下面的等式</span><br><span class="line"></span><br><span class="line">``` </span><br><span class="line">if (check[base[pre] + string.charAt(i) ] == pre) </span><br><span class="line">   pre = base[pre] + string.charAt(i)</span><br></pre></td></tr></table></figure>
+
+<p>对于base和check数组虽然<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">而我那天看到的论文是在此基础上的改进。论文中配图下的小标题，作者取名为```ReducedTrie</span><br></pre></td></tr></table></figure></p>
+<p>它和原生的双数组字典树的最明显的区别在于，它多了一个tail数组，这个数组的含义就像它的英文含义一样。reducedTrie的base, check数组仅存储前缀部分，而非前缀部分全部放到tail数组中。</p>
+<p>那么如何定位tail数组的位置呢？在base数组之中，每个字符串结尾的字符的base值为其后缀在tail的下标的负值。举例说<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">好处很明显，节约了base, check的空间减少了非前缀部分的计算，同样也有缺点，最大的缺点个人觉得是在存储为文件上，由于之前只需要base, check数组，并且是两个数组成对出现，因此很容易将字典树压缩离线存储为一个文件，而tail数组和base, check数组并无关系，因此需要两个文件存储。另一点就是tail数组的碎片太多，这个后面说插入会讲到。</span><br><span class="line"></span><br><span class="line">## 具体实现</span><br><span class="line"></span><br><span class="line">其实讲了tail数组的作用之后，再结合双数组字典树，就能够很快理解这个结构了。</span><br><span class="line"></span><br><span class="line">### insert</span><br><span class="line"></span><br><span class="line">插入是比较复杂的部分。分为四种情况处理。论文原文如下</span><br></pre></td></tr></table></figure></p>
+<ol>
+<li>Insertion of the new word when the double-array is empty. </li>
+<li>Insertion of the new word without any collisions. </li>
+<li>Insertion of the new word with a collision; in this case, additional characters must be added to the BASE and characters must be removed from the TAIL array to resolve the collision, but nothing already in the BASE array must be removed. </li>
+<li>When insertion of the new word with a collision as in case 3 occurs, values in the BASE array must be moved.<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">拙略地翻一下，大致是</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p>1.当数组为空则直接插入新节点.(体现节点为空检查check数组为0即可)<br>2.没有任何冲突的插入.<br>3.插入新节点时发生了一种不需要修改base数组，但是必须修改tail和多添加base字符用以解决冲突的冲突。<br>4.插入新节点发生了类似3的情况，但是base数组的值必须被清空</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">如果你实现过双数组字典树，那么你很快就明白了作者所说的冲突原意。如果没有实现过，那么用白话说下来，就是以下两种。</span><br><span class="line"></span><br><span class="line">- 当base为负值(base[i] &lt;0 说明此节点为终结点)而需要新插入节点，那么这就算一种冲突，解决这种冲突，必须要对比tail数组。举个论文中的例子，bachelor与badge，当插入bachelor时，b节点在树中，achelor都在tail数组中，所以插入badge时候，b节点比对完了，base就为负值了，这时候就需要比对badge的a和tail中的a。由于``` a == a ```因此直接插入一个新节点就可以继续走下去了。</span><br><span class="line"></span><br><span class="line">  那么如果遇到节点不同呢？还是上面的例子，走完a就来到了（c，d）显然不相等，那么需要新建两个节点。原理和上面所说的相同。</span><br><span class="line"></span><br><span class="line">- 当base[pre]&gt;0时， 并且check[base[pre] + char ] != pre那么说明发生了需要更改base值的冲突。这种冲突的本质是由于两个节点的base值相同，因此必须更改其中一个值来解决冲突。需要更改的base的节点就是pre和check[ base[pre] + char] 其中的一个。</span><br><span class="line"></span><br><span class="line"> 那么更改哪一个？选择从两个节点中选择孩子节点少的。因为base值改变了意味着他们的孩子节点的base值也要随着改变，如果节点的孩子也有孩子```暂称为孙子吧```，那么```孙子```节点的父亲也是要更改的。孩子节点有了新值，那么旧值就可以清0了。新节点就可以插入了</span><br><span class="line"></span><br><span class="line"> 但是在这其中有个巨坑的点，就是如果冲突的两个节点刚好是父子关系，那么一定要更新好父亲的下标。</span><br><span class="line"></span><br><span class="line">可能上面说的还是不能解惑，那我下面放出具体解决上面两种冲突的实现代码</span><br></pre></td></tr></table></figure>
+
+<p>其中xCheck(List list)是从1查找一个的值q，能够让list中的任何一个变量x都满足check[q+x]=0<br>moveTail(int x)即在x位置开始直到读到结束字符这段区间内，tail向左移动一位<br>writeTail(int[] value, int x)从value数组的x位置开始向tail数组写入。<br>put(int key, value) 缓存pre节点的孩子<br>初始化时候base[1] = 1 check[1] = 1</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">第一种冲突</span><br><span class="line"></span><br><span class="line">```java</span><br><span class="line">if (base[pre] &lt; 0) &#123;</span><br><span class="line">    //if current node is an end-point ,then separate or create a new node</span><br><span class="line">    int oldBase = base[pre];</span><br><span class="line">    if (tail[-oldBase] == keyValue[i]) &#123;</span><br><span class="line">        //create a new node</span><br><span class="line">        base[pre] = xCheck(keyValue[i]);</span><br><span class="line">        base[ base[pre]+keyValue[i] ] = oldBase;</span><br><span class="line">        check[ base[pre]+keyValue[i] ] = pre;</span><br><span class="line">        put(pre, keyValue[i]);</span><br><span class="line">        moveTail(-oldBase);</span><br><span class="line">        pre = base[pre] + keyValue[i];</span><br><span class="line">        continue;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        //separate</span><br><span class="line">        List&lt;Integer&gt; list = new ArrayList&lt;&gt;();</span><br><span class="line">        list.add(tail[-oldBase]); list.add(keyValue[i]);</span><br><span class="line">        base[pre] = xCheck(list);</span><br><span class="line">        base[ base[pre]+tail[-oldBase] ] = oldBase;</span><br><span class="line">        base[ base[pre]+keyValue[i] ] = -position;</span><br><span class="line">        check[ base[pre]+tail[-oldBase] ] = check[ base[pre]+keyValue[i] ] = pre;</span><br><span class="line">        writeTail(keyValue, i+1);</span><br><span class="line">        put(pre, tail[-oldBase]);</span><br><span class="line">        put(pre, keyValue[i]);</span><br><span class="line">        moveTail(-oldBase);</span><br><span class="line">        break;// 2 new nodes</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>第二种冲突</p>
+<ul>
+<li>@param node1为当前节点位置</li>
+<li>@param node2为另一个已存在的与node1发生冲突的节点</li>
+<li>@param newNodeValue为需要插入的节点值</li>
+</ul>
+<p>请注意巨坑点 :))))</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">processConflict</span><span class="params">(<span class="keyword">int</span> node1, <span class="keyword">int</span> node2, <span class="keyword">int</span> newNodeValue)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> node = (lists[node1].size()+<span class="number">1</span>) &lt; lists[node2].size() ? node1 : node2;</span><br><span class="line">    <span class="keyword">int</span> oldNodeBase = base[node];</span><br><span class="line">    <span class="keyword">if</span> (node == node1) &#123;</span><br><span class="line">        base[node] = xCheck(lists[node], newNodeValue);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        base[node] = xCheck(lists[node]);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; lists[node].size(); i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> oldNext = oldNodeBase + lists[node].get(i);</span><br><span class="line">        <span class="keyword">int</span> newNext = base[node] + lists[node].get(i);</span><br><span class="line">        <span class="keyword">if</span> (oldNext == node1) node1 = newNext;<span class="comment">//巨坑点</span></span><br><span class="line">        base[newNext] = base[oldNext];</span><br><span class="line">        check[newNext] = node;</span><br><span class="line">        <span class="keyword">if</span> (base[oldNext] &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; lists[oldNext].size(); j++) &#123;</span><br><span class="line">                check[ base[oldNext] + lists[oldNext].get(j) ] = newNext;</span><br><span class="line">                put(newNext, lists[oldNext].get(j));</span><br><span class="line">            &#125;</span><br><span class="line">            lists[oldNext] = <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        base[oldNext] = <span class="number">0</span>; check[oldNext] = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    base[ base[node1] + newNodeValue ] = -position;</span><br><span class="line">    check[ base[node1] + newNodeValue ] = node1;</span><br><span class="line">    put(node1, newNodeValue);</span><br><span class="line">    <span class="keyword">return</span> node;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果你还是有所疑惑，建议阅读An Efficient Implementation of Trie Structures这篇原文或者翻译版。</p>
+<h3 id="search"><a href="#search" class="headerlink" title="search"></a>search</h3><p>搜索就很简单了，按照文章最开始的</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">public boolean search(int[] key) &#123;</span><br><span class="line">    int pre = 1;</span><br><span class="line">    for (int i = 0; i &lt; key.length; i++) &#123;</span><br><span class="line">        if (base[pre] &lt; 0) &#123;</span><br><span class="line">            return compareTail(-base[pre], i, key);</span><br><span class="line">        &#125; else if (base[pre] &gt; 0) &#123;</span><br><span class="line">            if (check[ base[pre] + key[i] ] == pre) &#123;</span><br><span class="line">                pre = base[pre] + key[i];</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                return false;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; else return false;</span><br><span class="line">    &#125;</span><br><span class="line">    return true;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="delete"><a href="#delete" class="headerlink" title="delete"></a>delete</h3><p>对于删除操作，只需要找到每个单词最后一个节点，释放它即可。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">public boolean delete(String key) &#123;</span><br><span class="line">    int []keyValue = string2IntArray(key);</span><br><span class="line">    int pre = 1;</span><br><span class="line">    int index = -1;</span><br><span class="line">    int tempVal;</span><br><span class="line">    int next;</span><br><span class="line">    do &#123;</span><br><span class="line">        index++;</span><br><span class="line">        tempVal = keyValue[index];</span><br><span class="line">        next = base[pre] + tempVal;</span><br><span class="line">        if (check[next] != pre)  &#123;</span><br><span class="line">            return false;</span><br><span class="line">        &#125;</span><br><span class="line">        if (base[next] &lt; 0) break;</span><br><span class="line">        pre = next;</span><br><span class="line">    &#125; while (true);</span><br><span class="line">    if (tempVal == END_FLAG || compareTail(-base[next], index+1, keyValue)) &#123;</span><br><span class="line">        for (int i = 0; i &lt; lists[pre].size(); i++) &#123;</span><br><span class="line">            if (lists[pre].get(i) == tempVal) &#123;</span><br><span class="line">                lists[pre].remove(i);break;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        base[next] = 0; check[next] = 0;</span><br><span class="line">        //info(String.format(&quot;%s next[%d] turn to 0&quot;,key, next));</span><br><span class="line">        return true;</span><br><span class="line">    &#125;</span><br><span class="line">    return false;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="usage"><a href="#usage" class="headerlink" title="usage"></a>usage</h3><p>字典树最常见的用途就是前缀匹配和前缀提示，trie树建立成功之后就可以根据输入的前缀去寻找从这个节点出发所有可能的字符串。这里采用深度优先遍历。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">find</span><span class="params">( <span class="keyword">int</span> pre, StringBuilder builder, List&lt;String&gt; list)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> next;</span><br><span class="line">    <span class="keyword">if</span> (base[pre] &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        builder.append(readTail(-base[pre]));</span><br><span class="line">        list.add(builder.toString());</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; lists[pre].size(); i++) &#123;</span><br><span class="line">        next = base[pre] + lists[pre].get(i);</span><br><span class="line">        StringBuilder reserved = <span class="keyword">new</span> StringBuilder(builder.toString());</span><br><span class="line">        <span class="keyword">if</span> (check[next] == pre) &#123;</span><br><span class="line">            <span class="keyword">if</span> (lists[pre].get(i) == END_FLAG) &#123;</span><br><span class="line">                find(next, builder, list);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                find(next, builder.append((<span class="keyword">char</span>) lists[pre].get(i).intValue()), list);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        builder = reserved;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>好了，还记得之前我所说过这种结构的缺点中的一点是建立过程tail数组的碎片化严重吗？为什么这么说呢，因为在处理第一种冲突的时候，会不断地移动的tail数组，比如bachelor和badge，原本tail数组中是achelor#由于对比<code>a==a</code>成功，所以向左移动一位，chelor?#而这个’?’的部分，就无法被后续的节点插入使用，当然也是有解决办法的，需要在树建立成功之后整块移动。</p>
+<p>我在论坛上看到一种看法说这种写法在插入时发生冲突概率这么大，有什么实用性呢？其实这种结构在插入过程慢一点是无所谓的，字典树用途主要看它的查找效率。我们完全可以用长时间建立然后存储每个节点的值，第二次直接读进内存，就可以直接使用，建立过程只需要一次即可。</p>
+<p>//第一次码这么多字，好累啊</p>
+<p>//不过双数组字典树性能真的很强</p>
+<p>测试源代码：<a href="https://github.com/saltyx/ReducedTrie" target="_blank" rel="noopener">ReducedTrie</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    shiyan
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://saltyx.github.io/2017/02/20/2017-02-21-一种字典树结构的高效实现/" title="一种字典树结构的高效实现">https://saltyx.github.io/2017/02/20/2017-02-21-一种字典树结构的高效实现/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/数据结构/" rel="tag"># 数据结构</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/02/21/2017-02-21-JSON-Parser/" rel="prev" title="从零开始写一个JSON解析器">
+                从零开始写一个JSON解析器 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">shiyan</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/saltyx" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:shiyan9128@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#常见的字典树实现方法"><span class="nav-number">1.</span> <span class="nav-text">常见的字典树实现方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#search"><span class="nav-number">1.1.</span> <span class="nav-text">search</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#delete"><span class="nav-number">1.2.</span> <span class="nav-text">delete</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#usage"><span class="nav-number">1.3.</span> <span class="nav-text">usage</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">1.4.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shiyan</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://shiy4n.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'https://saltyx.github.io/2017/02/20/2017-02-21-一种字典树结构的高效实现/';
+          this.page.identifier = '2017/02/20/2017-02-21-一种字典树结构的高效实现/';
+          this.page.title = '一种字典树结构的高效实现';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://shiy4n.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

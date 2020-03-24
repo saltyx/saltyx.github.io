@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/favicon.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/assets/images/favicon.png?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="算法,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="记录下写加密文件脚本时候查阅的相关加密算法总结  本文涉及的加密算法 对称加密算法  DESAES    密码模式  密码本模式密码块链模式密码反馈模式   对称加密算法 使用相同的密钥来加密和解密的算法成为对称加密算法  1.DESDES计算方法如下图。  每次计算都是讲64bit明文拆分为左半部和右半部。下一轮的迭代输入左侧为上一轮的右半部，下一轮的右半部通过计算 $$ L_{i-1}\op">
+<meta name="keywords" content="算法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="加密算法学习笔记">
+<meta property="og:url" content="https://saltyx.github.io/2017/03/12/2017-03-12-加密算法学习笔记/index.html">
+<meta property="og:site_name" content="Focus on Java">
+<meta property="og:description" content="记录下写加密文件脚本时候查阅的相关加密算法总结  本文涉及的加密算法 对称加密算法  DESAES    密码模式  密码本模式密码块链模式密码反馈模式   对称加密算法 使用相同的密钥来加密和解密的算法成为对称加密算法  1.DESDES计算方法如下图。  每次计算都是讲64bit明文拆分为左半部和右半部。下一轮的迭代输入左侧为上一轮的右半部，下一轮的右半部通过计算 $$ L_{i-1}\op">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://saltyx.github.io/assets/images/DES.png">
+<meta property="og:image" content="https://saltyx.github.io/assets/images/DES(b).png">
+<meta property="og:image" content="https://saltyx.github.io/assets/images/AES.png">
+<meta property="og:image" content="https://saltyx.github.io/assets/images/128bitCFM.png">
+<meta property="og:image" content="https://saltyx.github.io/assets/images/ssl.svg">
+<meta property="og:updated_time" content="2018-03-17T16:37:50.781Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="加密算法学习笔记">
+<meta name="twitter:description" content="记录下写加密文件脚本时候查阅的相关加密算法总结  本文涉及的加密算法 对称加密算法  DESAES    密码模式  密码本模式密码块链模式密码反馈模式   对称加密算法 使用相同的密钥来加密和解密的算法成为对称加密算法  1.DESDES计算方法如下图。  每次计算都是讲64bit明文拆分为左半部和右半部。下一轮的迭代输入左侧为上一轮的右半部，下一轮的右半部通过计算 $$ L_{i-1}\op">
+<meta name="twitter:image" content="https://saltyx.github.io/assets/images/DES.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://saltyx.github.io/2017/03/12/2017-03-12-加密算法学习笔记/">
+
+
+
+
+
+  <title>加密算法学习笔记 | Focus on Java</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Focus on Java</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://saltyx.github.io/2017/03/12/2017-03-12-加密算法学习笔记/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="shiyan">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Focus on Java">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">加密算法学习笔记</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-03-12T06:30:24+08:00">
+                2017-03-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/03/12/2017-03-12-加密算法学习笔记/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/03/12/2017-03-12-加密算法学习笔记/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>记录下写加密文件脚本时候查阅的相关加密算法总结</p>
+</blockquote>
+<h3 id="本文涉及的加密算法"><a href="#本文涉及的加密算法" class="headerlink" title="本文涉及的加密算法"></a>本文涉及的加密算法</h3><blockquote>
+<p><strong>对称加密算法</strong></p>
+<blockquote>
+<p>DES<br>AES</p>
+</blockquote>
+</blockquote>
+<blockquote>
+<p><strong>密码模式</strong></p>
+<blockquote>
+<p>密码本模式<br>密码块链模式<br>密码反馈模式</p>
+</blockquote>
+</blockquote>
+<h3 id="对称加密算法"><a href="#对称加密算法" class="headerlink" title="对称加密算法"></a>对称加密算法</h3><blockquote>
+<p>使用相同的密钥来加密和解密的算法成为对称加密算法</p>
+</blockquote>
+<h4 id="1-DES"><a href="#1-DES" class="headerlink" title="1.DES"></a>1.DES</h4><p>DES计算方法如下图。<br><img src="/assets/images/DES.png" alt="DES"></p>
+<p><img src="/assets/images/DES(b).png" alt="DES(b)"></p>
+<p>每次计算都是讲64bit明文拆分为左半部和右半部。下一轮的迭代输入左侧为上一轮的右半部，下一轮的右半部通过计算 $$ L_{i-1}\oplus f(R_{i-1}, K_i) $$ 其中 $$K_i$$ 表示当前所使用的密钥，而 $$f(R_{i-1}, K_i)$$ 的函数表示的是以下步骤</p>
+<ul>
+<li>根据一个固定的替代和复制规则，将32位的 $$R_{i-1}$$扩展成一个一个48位的数字$$E$$</li>
+<li>$$E$$和$$K_i$$被异或在一起</li>
+<li>异或的结果被分成8个6位组，每个6位组被输入到不同S盒（置换）中。对于每个S盒共有$$2^6$$种可能输入，每种输入被映射到4位输出上。最后将这$$8\times4$$位通过一个P盒（排列）<blockquote>
+<p><a href="https://zh.wikipedia.org/wiki/DES%E8%A1%A5%E5%85%85%E6%9D%90%E6%96%99#.E6.89.A9.E5.BC.A0.E5.87.BD.E6.95.B0_.28E.E5.87.BD.E6.95.B0.29" target="_blank" rel="noopener">DES 附加材料wiki</a><br>例如映射出的4位的S盒的S5表格。<a href="https://zh.wikipedia.org/wiki/S%E7%9B%92" target="_blank" rel="noopener">S盒wiki</a><br>例如输入 <strong>0</strong> 1101 <strong>1</strong>那么寻找行<strong>01</strong>列1101的部分即为<strong>1001</strong></p>
+</blockquote>
+</li>
+</ul>
+<table class="wikitable" align="center">
+<tbody><tr>
+<th rowspan="2" colspan="2">S<sub>5</sub></th>
+<th colspan="16" align="center">Middle 4 bits of input</th>
+</tr>
+<tr>
+<th>0000</th>
+<th>0001</th>
+<th>0010</th>
+<th>0011</th>
+<th>0100</th>
+<th>0101</th>
+<th>0110</th>
+<th>0111</th>
+<th>1000</th>
+<th>1001</th>
+<th>1010</th>
+<th>1011</th>
+<th>1100</th>
+<th style="background:#ffdead;">1101</th>
+<th>1110</th>
+<th>1111</th>
+</tr>
+<tr>
+<th rowspan="4">Outer bits</th>
+<th>00</th>
+<td>0010</td>
+<td>1100</td>
+<td>0100</td>
+<td>0001</td>
+<td>0111</td>
+<td>1010</td>
+<td>1011</td>
+<td>0110</td>
+<td>1000</td>
+<td>0101</td>
+<td>0011</td>
+<td>1111</td>
+<td>1101</td>
+<td style="background:#ffdead;">0000</td>
+<td>1110</td>
+<td>1001</td>
+</tr>
+<tr>
+<th style="background:#deffad;">01</th>
+<td style="background:#deffad;">1110</td>
+<td style="background:#deffad;">1011</td>
+<td style="background:#deffad;">0010</td>
+<td style="background:#deffad;">1100</td>
+<td style="background:#deffad;">0100</td>
+<td style="background:#deffad;">0111</td>
+<td style="background:#deffad;">1101</td>
+<td style="background:#deffad;">0001</td>
+<td style="background:#deffad;">0101</td>
+<td style="background:#deffad;">0000</td>
+<td style="background:#deffad;">1111</td>
+<td style="background:#deffad;">1010</td>
+<td style="background:#deffad;">0011</td>
+<td style="background:#fefe2d;">1001</td>
+<td style="background:#deffad;">1000</td>
+<td style="background:#deffad;">0110</td>
+</tr>
+<tr>
+<th>10</th>
+<td>0100</td>
+<td>0010</td>
+<td>0001</td>
+<td>1011</td>
+<td>1010</td>
+<td>1101</td>
+<td>0111</td>
+<td>1000</td>
+<td>1111</td>
+<td>1001</td>
+<td>1100</td>
+<td>0101</td>
+<td>0110</td>
+<td style="background:#ffdead;">0011</td>
+<td>0000</td>
+<td>1110</td>
+</tr>
+<tr>
+<th>11</th>
+<td>1011</td>
+<td>1000</td>
+<td>1100</td>
+<td>0111</td>
+<td>0001</td>
+<td>1110</td>
+<td>0010</td>
+<td>1101</td>
+<td>0110</td>
+<td>1111</td>
+<td>0000</td>
+<td>1001</td>
+<td>1010</td>
+<td style="background:#ffdead;">0100</td>
+<td>0101</td>
+<td>0011</td>
+</tr>
+</tbody></table>
+
+<p>其中16次迭代中使用了<strong>不同</strong>的密钥。算法开始前会对56位的密钥执行56位替换操作，每次迭代开始前也会将密钥分成两个28位，每部分向左循环移位，移位位数取决于当前迭代次数，移位之后，执行56位替代。</p>
+<blockquote>
+<p>其中S盒和P盒操作代表的是密码置换和替换。</p>
+</blockquote>
+<h4 id="2-AES"><a href="#2-AES" class="headerlink" title="2.AES"></a>2.AES</h4><p>随着DES安全性下降，慢慢被淘汰。</p>
+<p>SSL 1.2版本以及TLS中已经使用了更加安全的AES算法来加密。</p>
+<p><img src="/assets/images/AES.png" alt="AES"></p>
+<p>AES加密相对DES更加复杂，其过程是在一个4X4的字节矩阵中完成的，这个矩阵称为state。<br>算法的过程，参考《计算机网络》第八章的代码结构</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">#define LENGTH 16</span><br><span class="line">#define NROWS 4</span><br><span class="line">#define NCOLS 4</span><br><span class="line">#define ROUNDS 10</span><br><span class="line">typedef unsigned char byte;</span><br><span class="line">rijndeal(byte plaintext[LENGTH], byte ciphertext[LENGTH], byte key[LENGTH]) &#123;</span><br><span class="line">    int r; /*记录当前处理到第几轮*/</span><br><span class="line">    byte state[NROWS][NCOLS]; /*主要操作的矩阵*/</span><br><span class="line">    struct &#123; </span><br><span class="line">        byte k[NROWS][NCOLS];</span><br><span class="line">    &#125; rk[ROUNDS+1];</span><br><span class="line">    expand_keys(key, rk); </span><br><span class="line">    /*算法开始前会进行扩展key,扩展结果放在11个rk数组中。其中一个会被用在计算最开始处，其余被用在10轮计算中*/</span><br><span class="line">    xor_roundkey_into_state(state, rk[0]);</span><br><span class="line">    /*算法开始前，rk[0]和state先执行一个异或操作，然后存入state中*/</span><br><span class="line">    for(r=1; r&lt;= ROUNDS; r++) &#123;</span><br><span class="line">        substitute(state);</span><br><span class="line">        /*替代过程，这其中会有个一S盒，每个字节都会有对应得一个字节输出。</span><br><span class="line">        不同于DES存在多个S盒，这个过程仅有一个S盒*/</span><br><span class="line">        rotate_rows(state);</span><br><span class="line">        /*左循环移动，0行不移动，1行移动一位，2行移动两位，3行移动三位*/</span><br><span class="line">        if (r&lt;ROUNDS) &#123;</span><br><span class="line">            mix_columns(state);</span><br><span class="line">            /*混淆操作，这过程中包含了一个在有限域GF(Galois field)(2^8)上的乘法*/</span><br><span class="line">            xor_roundkey_into_state(state, rk[r]);   </span><br><span class="line">            /*异或密钥，供下一轮加密使用*/</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    copy_state_to_ciphertext(state, ciphertext)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Rijndael的加密结构即以上的部分。上面的加密过程是对于128位密钥的情况。输入的明文是16字节的，密钥也是16字节的。Rijndael的加密支持128，192，256位的密钥。</p>
+<h2 id="密码模式"><a href="#密码模式" class="headerlink" title="密码模式"></a>密码模式</h2><blockquote>
+<p>注：以下公式中$$P$$代表明文(plaintext) $$E$$代表加密，$$D$$代表解密，$$C$$代表密文(cipher)</p>
+</blockquote>
+<h3 id="1-密码本模式"><a href="#1-密码本模式" class="headerlink" title="1.密码本模式"></a>1.密码本模式</h3><p>比如使用DES加密一段文本，如果使用密码本模式（ECB），则将明文分割成连续8字节的数据段来加密。非常类似查密码本来查找密码。这种模式成为密码本模式。这种模式带来的问题也显而易见，同样一份明文经过同一个密钥加密出来的结果是一样的，这样我们可以替换一个片段来达到不可告人的目的。《计算机网络》中举的例子很有意思，如果某个雇员知道公司年终奖文件的格式，比如说每个雇员的记录为32字节长的记录，16字节名字，8字节职位，8字节奖金，那么这个雇员可以通过替换记录的低8字节来达到替换奖金的目的，而且很有可能不被检测出来！</p>
+<h3 id="2-密码块链模式（CBC）"><a href="#2-密码块链模式（CBC）" class="headerlink" title="2.密码块链模式（CBC）"></a>2.密码块链模式（CBC）</h3><p>为了对抗加密段的攻击，那么就需要将每段加密段联系起来，这就有了密码块链模式。这种模式需要一个初始向量IV(Initialization Vector)来执行异或操作。</p>
+<p>其加密过程公式为$$C_i = E_k(P_i \oplus C_{i-1})$$<br>其中初始 $$C_0 = IV$$</p>
+<p>以AES-128-CBC为例。对于每一个16字节明文，首先和16字节的向量执行异或操作，然后再传入加密模块加密，最终加密的结果继续用于下一个16字节加密前的异或。</p>
+<p>其解密过程公式为$$P_i = D_k(C_i) \oplus C_{i-1}$$<br>其中初始 $$C_0 = IV$$</p>
+<p>这样的加密方式，对于相同的明文块不会导致相同的密文块。这也是其安全的部分。<br>下面是我之前写的一段脚本，用到了就是OpenSSL的AES-256-CBC的算法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line">require &apos;openssl&apos;</span><br><span class="line">require &apos;digest/sha2&apos;</span><br><span class="line">require &apos;securerandom&apos;</span><br><span class="line"></span><br><span class="line">class OpenSLLAESDemo</span><br><span class="line">  ALG = &apos;AES-256-CBC&apos;</span><br><span class="line">  def initialize</span><br><span class="line"></span><br><span class="line">  end</span><br><span class="line"></span><br><span class="line">  def self.encrypt (file, password=nil)</span><br><span class="line"></span><br><span class="line">    cipher = OpenSSL::Cipher.new(ALG)</span><br><span class="line">    cipher.encrypt</span><br><span class="line">    if password.nil?</span><br><span class="line">      key =  cipher.random_key</span><br><span class="line">    else</span><br><span class="line">      key = Digest::SHA256.hexdigest(password)</span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">    iv = SecureRandom.hex(32)</span><br><span class="line">    cipher.key =key</span><br><span class="line">    cipher.iv = iv</span><br><span class="line">    File.new(&quot;#&#123;file&#125;.enc&quot;,File::CREAT)</span><br><span class="line"></span><br><span class="line">    File.open(&quot;#&#123;file&#125;.enc&quot;, &apos;wb&apos;) do |enc|</span><br><span class="line">      File.open(file, &apos;rb&apos;) do |f|</span><br><span class="line">        loop do</span><br><span class="line">          r = f.read(4096)</span><br><span class="line">          break unless r</span><br><span class="line">          temp = cipher.update(r)</span><br><span class="line">          enc &lt;&lt; temp</span><br><span class="line">        end</span><br><span class="line">      end</span><br><span class="line">      temp = cipher.final</span><br><span class="line">      enc &lt;&lt; temp</span><br><span class="line">    end</span><br><span class="line">    [key, iv]</span><br><span class="line">  end</span><br><span class="line"></span><br><span class="line">  def self.decrypt (key,iv,file)</span><br><span class="line">    cipher = OpenSSL::Cipher.new(ALG)</span><br><span class="line">    cipher.decrypt</span><br><span class="line">    cipher.key = key</span><br><span class="line">    cipher.iv = iv</span><br><span class="line">    </span><br><span class="line">    File.new(&quot;#&#123;file&#125;.dec&quot;,File::CREAT)</span><br><span class="line">    File.open(&quot;#&#123;file&#125;.dec&quot;, &apos;wb&apos;) do |dec|</span><br><span class="line">      File.open(&quot;#&#123;file&#125;.enc&quot;, &apos;rb&apos;) do |enc|</span><br><span class="line">        loop do</span><br><span class="line">          r = enc.read(4096)</span><br><span class="line">          break unless r</span><br><span class="line">          temp = cipher.update(r)</span><br><span class="line">          dec &lt;&lt; temp</span><br><span class="line">        end</span><br><span class="line">      end</span><br><span class="line">      temp = cipher.final</span><br><span class="line">      dec &lt;&lt; temp</span><br><span class="line">    end</span><br><span class="line">  end</span><br><span class="line">  def self.hash(file)</span><br><span class="line">    Digest::SHA256.hexdigest(File.open(file, &apos;r&apos;)&#123;|f| f.read&#125;)</span><br><span class="line">  end</span><br><span class="line">end</span><br><span class="line">file = &apos;this is my file path&apos;</span><br><span class="line">temp = OpenSLLAESDemo.encrypt(file, &apos;iampassword&apos;)</span><br><span class="line">puts temp[0]</span><br><span class="line">puts temp[1]</span><br><span class="line">OpenSLLAESDemo.decrypt(temp[0], temp[1], file)</span><br><span class="line">puts &apos;yes&apos; if OpenSLLAESDemo.hash(file) ==OpenSLLAESDemo.hash(&quot;#&#123;file&#125;.dec&quot;)</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-密文反馈模式"><a href="#3-密文反馈模式" class="headerlink" title="3.密文反馈模式"></a>3.密文反馈模式</h3><p>CBC虽然说是最常用的模式，还以AES-128来说，它必须等待64字节的数据块到达后才能开始加密，这对于流式文件可以说是很不友好了。那么就有了密文反馈模式，这种模式可以改进这一点</p>
+<p>先看它的公式吧</p>
+<p>其加密公式为$$C_i = E_k(C_{i-1})\oplus P_i$$</p>
+<p>解密为 $$P_i =E_k(C_{i-1})\oplus C_i$$</p>
+<p>其中 $$C_0 = IV$$</p>
+<p><img src="/assets/images/128bitCFM.png" alt="CFM"></p>
+<p>看到这里需要注意解密过程，解密过程不是执行解密模块，而是一直加密。由于在解密过程中生成$$P_i$$的时候与$$C_i$$做异或的字节和生成$$P_i$$的时候与$$C_i$$做异或的是同一个字节，就可以保证解密的正确性。</p>
+<p>对比CBC模式，发现这样其实就不用$$E_k$$中就不用等待数据块的到来就可以执行。这还是最简单的，一般实现过程中，会使用移位寄存器，来保存多个加密过数据段。比如说下面这张图</p>
+<p>因此其加密公式也就变为$$C_i = head(E_k(S_{i-1}),x)\oplus P_i$$</p>
+<p>解密公式变为 $$P_i = head(E_K(S_{i-1}), x)\oplus C_i$$</p>
+<p>其中$$S_0 = IV$$， $$S_i = ((S_{i-1}&lt;&lt;x) + C_i) mod 2^n$$</p>
+<p>$$S_i$$的公式就是128位的移位寄存器移位结果了。果然看公式理解起来更快了。</p>
+<h2 id="用途"><a href="#用途" class="headerlink" title="用途"></a>用途</h2><p>这些对称加密算法的使用场景一般是哪些呢？</p>
+<p>我觉得只要适合文件加密或者信息加密的都适合。但由于是对称加密算法，所以加密解密需要同一个密钥，因此密钥管理是个大麻烦。这时候公钥加密RSA就派上用途了，但是RSA计算比较耗时，所以非对称加密和对称加密结合起来就是一个很完美的解决方案了。通过RSA传递AES的密钥，之后的对话就可以用AES来加密解密了。</p>
+<p>下面展示一个简易版的HTTPS 通过SSL建立子协议的过程</p>
+<p><img src="/assets/images/ssl.svg" alt="SSL"></p>
+<p>之后的过程就可以使用对称加密来进行传输数据了。</p>
+<h2 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h2><p>在做笔记看wiki的时候发现了个很有意思的词条，时序攻击。那再来说说时序攻击吧。</p>
+<p>至于什么是时序攻击呢？举个匹配过程的例子吧</p>
+<p>当验证密码的时候，需要将外界输入的密码和真实密码对比，如果我们在一遇到不同的字符就返回比对失败，那么对于不同的输入这个时间往往是不同的，根据返回结果的时间就可以大致猜测到哪一位是不同的。</p>
+<p>例如下面的代码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">for (int i=0; i&lt;length; i++) &#123;</span><br><span class="line">    if (unchecked[i] != password[i]) return i;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果第一位就返回和最后一位返回，这个计算的时间肯定是不一样的。通过比对这个时间就可以判断失败位置。这样就将攻击难度降下去很多。</p>
+<p>对于上面的例子，应对方案也很简单，如果发现字符匹配失败，不要急着返回结果，做个标记，全部匹配完毕再返回即可。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ul>
+<li>《计算机网络（第五版）》</li>
+<li><a href="https://zh.wikipedia.org/zh/%E9%AB%98%E7%BA%A7%E5%8A%A0%E5%AF%86%E6%A0%87%E5%87%86" target="_blank" rel="noopener">https://zh.wikipedia.org/zh/%E9%AB%98%E7%BA%A7%E5%8A%A0%E5%AF%86%E6%A0%87%E5%87%86</a></li>
+<li><a href="https://zh.wikipedia.org/wiki/%E8%B3%87%E6%96%99%E5%8A%A0%E5%AF%86%E6%A8%99%E6%BA%96" target="_blank" rel="noopener">https://zh.wikipedia.org/wiki/%E8%B3%87%E6%96%99%E5%8A%A0%E5%AF%86%E6%A8%99%E6%BA%96</a></li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    shiyan
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://saltyx.github.io/2017/03/12/2017-03-12-加密算法学习笔记/" title="加密算法学习笔记">https://saltyx.github.io/2017/03/12/2017-03-12-加密算法学习笔记/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/算法/" rel="tag"># 算法</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/02/21/2017-02-21-JSON-Parser/" rel="next" title="从零开始写一个JSON解析器">
+                <i class="fa fa-chevron-left"></i> 从零开始写一个JSON解析器
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/03/24/2017-03-24-一次诡异的内存泄漏/" rel="prev" title="一次诡异的内存泄漏">
+                一次诡异的内存泄漏 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">shiyan</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/saltyx" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:shiyan9128@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#本文涉及的加密算法"><span class="nav-number">1.</span> <span class="nav-text">本文涉及的加密算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#对称加密算法"><span class="nav-number">2.</span> <span class="nav-text">对称加密算法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-DES"><span class="nav-number">2.1.</span> <span class="nav-text">1.DES</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-AES"><span class="nav-number">2.2.</span> <span class="nav-text">2.AES</span></a></li></ol></li></ol><li class="nav-item nav-level-2"><a class="nav-link" href="#密码模式"><span class="nav-number"></span> <span class="nav-text">密码模式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-密码本模式"><span class="nav-number">1.</span> <span class="nav-text">1.密码本模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-密码块链模式（CBC）"><span class="nav-number">2.</span> <span class="nav-text">2.密码块链模式（CBC）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-密文反馈模式"><span class="nav-number">3.</span> <span class="nav-text">3.密文反馈模式</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#用途"><span class="nav-number"></span> <span class="nav-text">用途</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#最后"><span class="nav-number"></span> <span class="nav-text">最后</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#参考"><span class="nav-number">1.</span> <span class="nav-text">参考</span></a></li></ol></li></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shiyan</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://shiy4n.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'https://saltyx.github.io/2017/03/12/2017-03-12-加密算法学习笔记/';
+          this.page.identifier = '2017/03/12/2017-03-12-加密算法学习笔记/';
+          this.page.title = '加密算法学习笔记';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://shiy4n.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

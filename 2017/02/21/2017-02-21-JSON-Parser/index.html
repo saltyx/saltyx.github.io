@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/favicon.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/assets/images/favicon.png?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Java,编译原理,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="JSON的语法简单，很适合上完编译原理课程之后或者学习完龙书语法分析之后的练手。   JSON格式1234&amp;#123;&quot;a&quot; : 123 &amp;#125;[1,2,3]&amp;#123;&quot;a&quot;: [1,2,3] &amp;#125;&amp;#123;&quot;a&quot; : &amp;#123;&quot;b&quot; : 123 &amp;#125;&amp;#125;  基础为以上几种。有了基本的格式，可以考虑先写词法分析部分。JSON格式类似于key/value存储，">
+<meta name="keywords" content="Java,编译原理">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从零开始写一个JSON解析器">
+<meta property="og:url" content="https://saltyx.github.io/2017/02/21/2017-02-21-JSON-Parser/index.html">
+<meta property="og:site_name" content="Focus on Java">
+<meta property="og:description" content="JSON的语法简单，很适合上完编译原理课程之后或者学习完龙书语法分析之后的练手。   JSON格式1234&amp;#123;&quot;a&quot; : 123 &amp;#125;[1,2,3]&amp;#123;&quot;a&quot;: [1,2,3] &amp;#125;&amp;#123;&quot;a&quot; : &amp;#123;&quot;b&quot; : 123 &amp;#125;&amp;#125;  基础为以上几种。有了基本的格式，可以考虑先写词法分析部分。JSON格式类似于key/value存储，">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/3672344-d21fc4340197c952.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/3672344-f3fc1ed78520107f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2019-08-26T13:56:03.867Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从零开始写一个JSON解析器">
+<meta name="twitter:description" content="JSON的语法简单，很适合上完编译原理课程之后或者学习完龙书语法分析之后的练手。   JSON格式1234&amp;#123;&quot;a&quot; : 123 &amp;#125;[1,2,3]&amp;#123;&quot;a&quot;: [1,2,3] &amp;#125;&amp;#123;&quot;a&quot; : &amp;#123;&quot;b&quot; : 123 &amp;#125;&amp;#125;  基础为以上几种。有了基本的格式，可以考虑先写词法分析部分。JSON格式类似于key/value存储，">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/3672344-d21fc4340197c952.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://saltyx.github.io/2017/02/21/2017-02-21-JSON-Parser/">
+
+
+
+
+
+  <title>从零开始写一个JSON解析器 | Focus on Java</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Focus on Java</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://saltyx.github.io/2017/02/21/2017-02-21-JSON-Parser/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="shiyan">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Focus on Java">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">从零开始写一个JSON解析器</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-02-21T07:30:24+08:00">
+                2017-02-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/02/21/2017-02-21-JSON-Parser/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/02/21/2017-02-21-JSON-Parser/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>JSON的语法简单，很适合上完编译原理课程之后或者学习完龙书语法分析之后的练手。</p>
+</blockquote>
+<p><img src="http://upload-images.jianshu.io/upload_images/3672344-d21fc4340197c952.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="**JSON**"></p>
+<h2 id="JSON格式"><a href="#JSON格式" class="headerlink" title="JSON格式"></a>JSON格式</h2><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="attr">"a"</span> : <span class="number">123</span> &#125;</span><br><span class="line">[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>]</span><br><span class="line">&#123;<span class="attr">"a"</span>: [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>] &#125;</span><br><span class="line">&#123;<span class="attr">"a"</span> : &#123;<span class="attr">"b"</span> : <span class="number">123</span> &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>基础为以上几种。有了基本的格式，可以考虑先写词法分析部分。JSON格式类似于key/value存储，其中key为string类型，value复杂一些，可包括，string，int，double，jsonobject，jsonarray，true，false，null标记。所以对每个token都要逐一分析，构造出DFA。</p>
+<ul>
+<li><p>字符串<br>字符串以 “ 开头，以 “ 结束。其中需要考虑的是转义字符的忽略以及unicode的格式（\u hex hex hex hex）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> Token <span class="title">readString</span><span class="params">()</span> <span class="keyword">throws</span> IOException, JsonLexException </span>&#123;</span><br><span class="line">       StringBuilder builder = <span class="keyword">new</span> StringBuilder();</span><br><span class="line">       <span class="keyword">while</span> ( (<span class="keyword">this</span>.at_ = read()) != <span class="string">'\"'</span>) &#123;</span><br><span class="line">           <span class="keyword">if</span> (<span class="keyword">this</span>.at_ == <span class="string">'\r'</span> || <span class="keyword">this</span>.at_ == <span class="string">'\n'</span>) error(<span class="string">"string"</span>, <span class="keyword">this</span>.at_);</span><br><span class="line">           <span class="keyword">if</span> (<span class="keyword">this</span>.at_ == <span class="string">'\\'</span>) &#123;</span><br><span class="line">               <span class="comment">//check escape char</span></span><br><span class="line">               <span class="keyword">this</span>.at_ = read();</span><br><span class="line">               <span class="keyword">if</span> (isEscapeChar(<span class="keyword">this</span>.at_)) &#123;</span><br><span class="line">                   builder.append(<span class="string">'\\'</span>);</span><br><span class="line">                   builder.append((<span class="keyword">char</span>) <span class="keyword">this</span>.at_);</span><br><span class="line">               &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">this</span>.at_ == <span class="string">'u'</span>)&#123;</span><br><span class="line">                   <span class="comment">//unicode</span></span><br><span class="line">                   builder.append(<span class="string">'\\'</span>);</span><br><span class="line">                   builder.append(<span class="string">'u'</span>);</span><br><span class="line">                   builder.append(unicode());</span><br><span class="line"></span><br><span class="line">               &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                   error(<span class="string">"string"</span>, <span class="keyword">this</span>.at_);</span><br><span class="line">               &#125;</span><br><span class="line">           &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">               builder.append((<span class="keyword">char</span>) <span class="keyword">this</span>.at_);</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">if</span> ( <span class="keyword">this</span>.at_ != <span class="string">'\"'</span>) &#123;</span><br><span class="line">           <span class="comment">//string is not closed</span></span><br><span class="line">           error(<span class="string">"string[not closed]"</span>, <span class="keyword">this</span>.at_);</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">return</span> <span class="keyword">this</span>.token_ = <span class="keyword">new</span> Token(JsonToken.STRING, <span class="keyword">new</span> Value(builder.toString()));</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="function"><span class="keyword">private</span> String <span class="title">unicode</span><span class="params">()</span> <span class="keyword">throws</span> IOException, JsonLexException </span>&#123;</span><br><span class="line">       StringBuilder builder = <span class="keyword">new</span> StringBuilder();</span><br><span class="line">       <span class="keyword">int</span> i=<span class="number">0</span>;</span><br><span class="line">       <span class="keyword">for</span> (;i&lt;<span class="number">4</span> &amp;&amp; isHexChar(<span class="keyword">this</span>.at_ = read()); builder.append((<span class="keyword">char</span>) <span class="keyword">this</span>.at_),++i);</span><br><span class="line">       <span class="keyword">if</span> (i &lt; <span class="number">4</span>) error(<span class="string">"unicode"</span>, <span class="keyword">this</span>.at_);</span><br><span class="line">       <span class="keyword">return</span> builder.toString();</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>数字<br>数字包含有符号int double以及科学计数法表示稍微麻烦，但是画出DFA分析就会明了很多。</p>
+</li>
+</ul>
+<p><img src="http://upload-images.jianshu.io/upload_images/3672344-f3fc1ed78520107f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="DFA"><br>据此就可很快写出来。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> Token <span class="title">readNumber</span><span class="params">(<span class="keyword">int</span> at)</span> <span class="keyword">throws</span> IOException,JsonLexException </span>&#123;</span><br><span class="line"></span><br><span class="line">        StringBuilder builder = <span class="keyword">new</span> StringBuilder();</span><br><span class="line">        <span class="keyword">int</span> status = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">            <span class="keyword">switch</span> (status) &#123;</span><br><span class="line">                <span class="keyword">case</span> <span class="number">0</span>:</span><br><span class="line">                    <span class="keyword">this</span>.at_ = at;</span><br><span class="line">                    <span class="keyword">if</span> (<span class="keyword">this</span>.at_ == <span class="string">'+'</span> || <span class="keyword">this</span>.at_ == <span class="string">'-'</span>) status = <span class="number">1</span>;</span><br><span class="line">                    <span class="keyword">else</span> <span class="keyword">if</span> (Character.isDigit(<span class="keyword">this</span>.at_)) status = <span class="number">2</span>;</span><br><span class="line">                    <span class="keyword">else</span> error(<span class="string">"number"</span>, <span class="keyword">this</span>.at_);</span><br><span class="line">                    builder.append((<span class="keyword">char</span>) <span class="keyword">this</span>.at_);</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">                    <span class="keyword">this</span>.at_ = read();</span><br><span class="line">                    <span class="keyword">if</span> (Character.isDigit(<span class="keyword">this</span>.at_)) status = <span class="number">2</span>;</span><br><span class="line">                    <span class="keyword">else</span> error(<span class="string">"number"</span>, <span class="keyword">this</span>.at_);</span><br><span class="line">                    builder.append((<span class="keyword">char</span>) <span class="keyword">this</span>.at_);</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> <span class="number">2</span>:</span><br><span class="line">                    <span class="keyword">this</span>.at_ = read();</span><br><span class="line">                    <span class="keyword">if</span> (<span class="keyword">this</span>.at_ == <span class="string">'.'</span>) status = <span class="number">3</span>;</span><br><span class="line">                    <span class="keyword">else</span> <span class="keyword">if</span> (Character.isDigit(<span class="keyword">this</span>.at_)) status = <span class="number">2</span>;</span><br><span class="line">                    <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">this</span>.at_ == <span class="string">'E'</span> || <span class="keyword">this</span>.at_ == <span class="string">'e'</span>) status = <span class="number">5</span>;</span><br><span class="line">                    <span class="keyword">else</span> status = <span class="number">8</span>;</span><br><span class="line">                    <span class="keyword">if</span> (status != <span class="number">8</span>) &#123;</span><br><span class="line">                        builder.append((<span class="keyword">char</span>) <span class="keyword">this</span>.at_);</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> <span class="number">3</span>:</span><br><span class="line">                    <span class="keyword">this</span>.at_ = read();</span><br><span class="line">                    <span class="keyword">if</span> (Character.isDigit(<span class="keyword">this</span>.at_)) status = <span class="number">4</span>;</span><br><span class="line">                    <span class="keyword">else</span> error(<span class="string">"number"</span>, <span class="keyword">this</span>.at_);</span><br><span class="line">                    builder.append((<span class="keyword">char</span>) <span class="keyword">this</span>.at_);</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> <span class="number">4</span>:</span><br><span class="line">                    <span class="keyword">this</span>.at_ = read();</span><br><span class="line">                    <span class="keyword">if</span> (Character.isDigit(<span class="keyword">this</span>.at_)) status = <span class="number">4</span>;</span><br><span class="line">                    <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">this</span>.at_ == <span class="string">'E'</span> || <span class="keyword">this</span>.at_ == <span class="string">'e'</span>) status = <span class="number">5</span>;</span><br><span class="line">                    <span class="keyword">else</span> status = <span class="number">9</span>;</span><br><span class="line">                    <span class="keyword">if</span> (status != <span class="number">9</span>) &#123;</span><br><span class="line">                        builder.append((<span class="keyword">char</span>) <span class="keyword">this</span>.at_);</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> <span class="number">5</span>:</span><br><span class="line">                    <span class="keyword">this</span>.at_ = read();</span><br><span class="line">                    <span class="keyword">if</span> (<span class="keyword">this</span>.at_ == <span class="string">'+'</span> || <span class="keyword">this</span>.at_ == <span class="string">'-'</span>) status = <span class="number">6</span>;</span><br><span class="line">                    <span class="keyword">else</span> <span class="keyword">if</span> (Character.isDigit(<span class="keyword">this</span>.at_)) status = <span class="number">7</span>;</span><br><span class="line">                    <span class="keyword">else</span> error(<span class="string">"number"</span>, <span class="keyword">this</span>.at_);</span><br><span class="line">                    builder.append((<span class="keyword">char</span>) <span class="keyword">this</span>.at_);</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> <span class="number">6</span>:</span><br><span class="line">                    <span class="keyword">this</span>.at_ = read();</span><br><span class="line">                    <span class="keyword">if</span> (Character.isDigit(<span class="keyword">this</span>.at_)) status = <span class="number">7</span>;</span><br><span class="line">                    <span class="keyword">else</span> error(<span class="string">"number"</span>, <span class="keyword">this</span>.at_);</span><br><span class="line">                    builder.append((<span class="keyword">char</span>) <span class="keyword">this</span>.at_);</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> <span class="number">7</span>:</span><br><span class="line">                    <span class="keyword">this</span>.at_ = read();</span><br><span class="line">                    <span class="keyword">if</span> (Character.isDigit(<span class="keyword">this</span>.at_)) status = <span class="number">7</span>;</span><br><span class="line">                    <span class="keyword">else</span> status = <span class="number">10</span>;</span><br><span class="line">                    <span class="keyword">if</span> (status != <span class="number">10</span>) &#123;</span><br><span class="line">                        builder.append((<span class="keyword">char</span>) <span class="keyword">this</span>.at_);</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> <span class="number">8</span>: <span class="comment">// int</span></span><br><span class="line">                    unread(<span class="keyword">this</span>.at_); <span class="comment">// not a digit</span></span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">this</span>.token_ = <span class="keyword">new</span> Token(JsonToken.INT, <span class="keyword">new</span> Value(Integer.valueOf(builder.toString())));</span><br><span class="line">                <span class="keyword">case</span> <span class="number">9</span>: <span class="comment">//double without 'E' or 'e'</span></span><br><span class="line">                    unread(<span class="keyword">this</span>.at_); <span class="comment">// not a digit</span></span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">this</span>.token_ = <span class="keyword">new</span> Token(JsonToken.DOUBLE, <span class="keyword">new</span> Value(Double.valueOf(builder.toString())));</span><br><span class="line">                <span class="keyword">case</span> <span class="number">10</span>:<span class="comment">//double with 'E' or 'e'</span></span><br><span class="line">                    unread(<span class="keyword">this</span>.at_);<span class="comment">// not a digit</span></span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">this</span>.token_ = <span class="keyword">new</span> Token(JsonToken.DOUBLE,<span class="keyword">new</span> Value(Double.valueOf(builder.toString())));</span><br><span class="line">                <span class="keyword">default</span>:</span><br><span class="line">                    error(<span class="string">"number"</span>, <span class="keyword">this</span>.at_);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>其他字符<br>对于其他终结符，true false null则只要匹配首字符来判断就可以了。</li>
+</ul>
+<p>综上就可写出来lexer了</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Token <span class="title">scan</span><span class="params">()</span> <span class="keyword">throws</span> IOException, JsonLexException </span>&#123;</span><br><span class="line">        <span class="comment">//this.at_ = '\0';</span></span><br><span class="line">        <span class="keyword">while</span> (isWhiteBlack( <span class="keyword">this</span>.at_ = read() ));</span><br><span class="line">        <span class="keyword">switch</span> ((<span class="keyword">int</span>)<span class="keyword">this</span>.at_) &#123;</span><br><span class="line">            <span class="keyword">case</span> <span class="string">'&#123;'</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">this</span>.token_ = <span class="keyword">new</span> Token(JsonToken.BEGIN_OBJ, <span class="keyword">new</span> Value(<span class="string">"&#123;"</span>));</span><br><span class="line">            <span class="keyword">case</span> <span class="string">'&#125;'</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">this</span>.token_ = <span class="keyword">new</span> Token(JsonToken.END_OBJ, <span class="keyword">new</span> Value(<span class="string">"&#125;"</span>));</span><br><span class="line">            <span class="keyword">case</span> <span class="string">'['</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">this</span>.token_ = <span class="keyword">new</span> Token(JsonToken.BEGIN_ARR, <span class="keyword">new</span> Value(<span class="string">"["</span>));</span><br><span class="line">            <span class="keyword">case</span> <span class="string">']'</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">this</span>.token_ = <span class="keyword">new</span> Token(JsonToken.END_ARR, <span class="keyword">new</span> Value(<span class="string">"]"</span>));</span><br><span class="line">            <span class="keyword">case</span> <span class="string">':'</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">this</span>.token_ = <span class="keyword">new</span> Token(JsonToken.COLON, <span class="keyword">new</span> Value(<span class="string">":"</span>));</span><br><span class="line">            <span class="keyword">case</span> <span class="string">','</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">this</span>.token_ = <span class="keyword">new</span> Token(JsonToken.COMMA, <span class="keyword">new</span> Value(<span class="string">","</span>));</span><br><span class="line">            <span class="keyword">case</span> <span class="string">'1'</span>: <span class="keyword">case</span> <span class="string">'2'</span>: <span class="keyword">case</span> <span class="string">'3'</span>: <span class="keyword">case</span> <span class="string">'4'</span>: <span class="keyword">case</span> <span class="string">'5'</span>:</span><br><span class="line">            <span class="keyword">case</span> <span class="string">'6'</span>: <span class="keyword">case</span> <span class="string">'7'</span>: <span class="keyword">case</span> <span class="string">'8'</span>: <span class="keyword">case</span> <span class="string">'9'</span>: <span class="keyword">case</span> <span class="string">'0'</span>:</span><br><span class="line">            <span class="keyword">case</span> <span class="string">'-'</span>: <span class="keyword">case</span> <span class="string">'+'</span>: <span class="keyword">case</span> <span class="string">'.'</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">this</span>.token_ = readNumber(<span class="keyword">this</span>.at_);</span><br><span class="line">            <span class="keyword">case</span> <span class="string">'\"'</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">this</span>.token_ = readString();</span><br><span class="line">            <span class="keyword">case</span> <span class="string">'n'</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">this</span>.token_ = readNull();</span><br><span class="line">            <span class="keyword">case</span> <span class="string">'t'</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">this</span>.token_ = readTrue();</span><br><span class="line">            <span class="keyword">case</span> <span class="string">'f'</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">this</span>.token_ = readFalse();</span><br><span class="line">            <span class="keyword">case</span> -<span class="number">1</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">this</span>.token_ = <span class="keyword">new</span> Token(JsonToken.EOF, <span class="keyword">new</span> Value(<span class="string">"eof"</span>));</span><br><span class="line">            <span class="keyword">default</span>:</span><br><span class="line">                <span class="keyword">this</span>.token_ = <span class="keyword">null</span>;</span><br><span class="line">                error(<span class="string">"scan-&gt;default"</span>,<span class="keyword">this</span>.at_);</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">``` </span><br><span class="line">词法分析就完成了。</span><br><span class="line">## 语法分析</span><br><span class="line">&gt; 语法分析有LL， LR等方法这里采取LL(<span class="number">1</span>)分析。</span><br><span class="line"></span><br><span class="line">首先要构造出JSON文法。根据JSON基础格式。</span><br></pre></td></tr></table></figure>
+
+<p>obj -&gt; { members }<br>members -&gt; pair members’ | eps<br>members’ -&gt; , pair members’ | eps<br>pair -&gt; string : value<br>array -&gt; [ elem ]<br>elem -&gt; value elem’ | eps<br>elem’ -&gt; , value elem’ | eps<br>value -&gt; obj | array | number | string | true | false | null</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br></pre></td><td class="code"><pre><span class="line">求出FIRST集和FOLLOW集，验证可知为LL(1)文法。这样就可以用递归下降来做语法分析。</span><br><span class="line">之后写出SDT就可以根据SDT来编写代码了。</span><br><span class="line">```java</span><br><span class="line"></span><br><span class="line">    public Json parse() throws IOException, JsonParseException, JsonLexException &#123;</span><br><span class="line">        Token token = lexer_.scan();</span><br><span class="line">        if (token.getToken() == JsonToken.BEGIN_OBJ) &#123;</span><br><span class="line">            return object();</span><br><span class="line">        &#125; else if (token.getToken() == JsonToken.BEGIN_ARR) &#123;</span><br><span class="line">            return array();</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            error(&quot;parse&quot;, token.toString());</span><br><span class="line">            return null;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    //文法 &#123; member &#125;</span><br><span class="line">    public JsonObject object() throws IOException,</span><br><span class="line">            JsonParseException, JsonLexException &#123;</span><br><span class="line">        Map&lt;String, Value&gt; map = new HashMap&lt;&gt;();</span><br><span class="line">        return new JsonObject(member(map));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    //对应文法 pair mem&apos; | eps</span><br><span class="line">    public Map&lt;String ,Value&gt; member(Map&lt;String, Value&gt; map) throws IOException,</span><br><span class="line">            JsonLexException, JsonParseException &#123;</span><br><span class="line">        Token token = lexer_.scan();</span><br><span class="line">        if (token.getToken() == JsonToken.END_OBJ) &#123; //eps</span><br><span class="line">            return map;</span><br><span class="line">        &#125;</span><br><span class="line">        return member_1( pair(map) );</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    //对应文法 , pair mem&apos; | eps</span><br><span class="line">    public Map&lt;String, Value&gt; member_1(Map&lt;String, Value&gt; map) throws IOException, JsonLexException, JsonParseException &#123;</span><br><span class="line">        Token token = lexer_.scan();</span><br><span class="line">        if (token.getToken() == JsonToken.COMMA) &#123; //,</span><br><span class="line">            lexer_.scan();</span><br><span class="line">            return member_1( pair(map) );</span><br><span class="line">        &#125; else if (token.getToken() == JsonToken.END_OBJ) &#123; //eps</span><br><span class="line">            return map;</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            error(&quot;member_1&quot;, token.toString());</span><br><span class="line">            return null;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    //文法 string : value</span><br><span class="line">    private Map&lt;String, Value&gt; pair(Map&lt;String, Value&gt; map) throws IOException, JsonLexException, JsonParseException &#123;</span><br><span class="line">        Token token = lexer_.peek();</span><br><span class="line">        if (token.getToken() == JsonToken.STRING) &#123;</span><br><span class="line">            String key = (String) token.getValue().get();</span><br><span class="line">            token = lexer_.scan();</span><br><span class="line">            if (token.getToken() == JsonToken.COLON) &#123;</span><br><span class="line">                lexer_.scan();</span><br><span class="line">                map.put(key, value());</span><br><span class="line">                return map;</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                error(&quot;pair&quot;, token.toString());</span><br><span class="line">                return null;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            error(&quot;pair&quot;, token.toString());</span><br><span class="line">            return null;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    //文法 [ elem ]</span><br><span class="line">    public JsonArray array() throws IOException,JsonParseException, JsonLexException  &#123;</span><br><span class="line">        List&lt;Value&gt; list = new LinkedList&lt;&gt;();</span><br><span class="line">        return new JsonArray(elem(list));</span><br><span class="line">    &#125;</span><br><span class="line">    //文法 value elem&apos; | eps</span><br><span class="line">    public List&lt;Value&gt; elem(List&lt;Value&gt; list) throws IOException,</span><br><span class="line">            JsonLexException,JsonParseException  &#123;</span><br><span class="line">        Token token = lexer_.scan();</span><br><span class="line">        if (token.getToken() == JsonToken.END_ARR) &#123; // eps</span><br><span class="line">            return list;</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            list.add(value());</span><br><span class="line">            return elem_1(list);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 文法 , value elem&apos; | eps</span><br><span class="line">    public List&lt;Value&gt; elem_1(List&lt;Value&gt; list) throws IOException,</span><br><span class="line">            JsonLexException, JsonParseException  &#123;</span><br><span class="line">        Token token = lexer_.scan();</span><br><span class="line">        if (token.getToken() == JsonToken.COMMA) &#123; // ,</span><br><span class="line">            lexer_.scan();</span><br><span class="line">            list.add(value());</span><br><span class="line">            return elem_1(list);</span><br><span class="line">        &#125; else if (token.getToken() == JsonToken.END_ARR) &#123; // eps</span><br><span class="line">            return list;</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            error(&quot;elem_1&quot;,token.toString());</span><br><span class="line">            return null;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public Value value() throws IOException, JsonLexException,</span><br><span class="line">            JsonParseException &#123;</span><br><span class="line">        Token token = lexer_.peek();</span><br><span class="line">        if (isCommonValue(token.getToken())) &#123;</span><br><span class="line">            return new Value(token.getValue());</span><br><span class="line">        &#125; else if (token.getToken() == JsonToken.BEGIN_OBJ) &#123;</span><br><span class="line">            return new Value(object());</span><br><span class="line">        &#125; else if (token.getToken() == JsonToken.BEGIN_ARR) &#123;</span><br><span class="line">            return new Value(array());</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            error(&quot;value&quot;,token.toString());</span><br><span class="line">            return null;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private boolean isCommonValue(JsonToken token) &#123;</span><br><span class="line">        return (token == JsonToken.STRING || token == JsonToken.FALSE ||</span><br><span class="line">                token == JsonToken.INT || token == JsonToken.DOUBLE ||</span><br><span class="line">                token == JsonToken.TRUE || token == JsonToken.NULL) ? true : false;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    public void error(String position, String value) throws JsonParseException &#123;</span><br><span class="line">        throw new JsonParseException(String.format(&quot;an error occurred on Parser [%s %s]&quot;,position,value));</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>至此一个简单的解析器已经写完了，只是实现了简单的解析功能，一个完善的JAVA JSON解析器至少可以对<strong>对象序列化和反序列化</strong>。后续将会添加上这部分功能，再更新一遍  :-|</p>
+<p>源代码：<a href="https://github.com/saltyx/ToyJSON" target="_blank" rel="noopener">ToyJSON</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    shiyan
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://saltyx.github.io/2017/02/21/2017-02-21-JSON-Parser/" title="从零开始写一个JSON解析器">https://saltyx.github.io/2017/02/21/2017-02-21-JSON-Parser/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+            <a href="/tags/编译原理/" rel="tag"># 编译原理</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/02/20/2017-02-21-一种字典树结构的高效实现/" rel="next" title="一种字典树结构的高效实现">
+                <i class="fa fa-chevron-left"></i> 一种字典树结构的高效实现
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/03/12/2017-03-12-加密算法学习笔记/" rel="prev" title="加密算法学习笔记">
+                加密算法学习笔记 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">shiyan</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/saltyx" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:shiyan9128@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#JSON格式"><span class="nav-number">1.</span> <span class="nav-text">JSON格式</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shiyan</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://shiy4n.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'https://saltyx.github.io/2017/02/21/2017-02-21-JSON-Parser/';
+          this.page.identifier = '2017/02/21/2017-02-21-JSON-Parser/';
+          this.page.title = '从零开始写一个JSON解析器';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://shiy4n.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

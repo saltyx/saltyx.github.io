@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/favicon.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/assets/images/favicon.png?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Java,Dubbo,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="计划阅读调试下Dubbo的源码，结合官方源码分析Dubbo，自身再分析总结   本文对应的Dubbo 服务导出  源码分析接上一节，继续介绍doExportUrls 123456789@SuppressWarnings(&amp;#123;&quot;unchecked&quot;, &quot;rawtypes&quot;&amp;#125;)private void doExportUrls() &amp;#123;    // 加载注册中心的URL">
+<meta name="keywords" content="Java,Dubbo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Dubbo源码分析4-Dubbo 服务导出2">
+<meta property="og:url" content="https://saltyx.github.io/2019/07/24/2019-07-24-dubbo源码分析4 dubbo export service/index.html">
+<meta property="og:site_name" content="Focus on Java">
+<meta property="og:description" content="计划阅读调试下Dubbo的源码，结合官方源码分析Dubbo，自身再分析总结   本文对应的Dubbo 服务导出  源码分析接上一节，继续介绍doExportUrls 123456789@SuppressWarnings(&amp;#123;&quot;unchecked&quot;, &quot;rawtypes&quot;&amp;#125;)private void doExportUrls() &amp;#123;    // 加载注册中心的URL">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-08-26T14:27:00.175Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Dubbo源码分析4-Dubbo 服务导出2">
+<meta name="twitter:description" content="计划阅读调试下Dubbo的源码，结合官方源码分析Dubbo，自身再分析总结   本文对应的Dubbo 服务导出  源码分析接上一节，继续介绍doExportUrls 123456789@SuppressWarnings(&amp;#123;&quot;unchecked&quot;, &quot;rawtypes&quot;&amp;#125;)private void doExportUrls() &amp;#123;    // 加载注册中心的URL">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://saltyx.github.io/2019/07/24/2019-07-24-dubbo源码分析4 dubbo export service/">
+
+
+
+
+
+  <title>Dubbo源码分析4-Dubbo 服务导出2 | Focus on Java</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Focus on Java</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://saltyx.github.io/2019/07/24/2019-07-24-dubbo源码分析4 dubbo export service/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="shiyan">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Focus on Java">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">Dubbo源码分析4-Dubbo 服务导出2</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-07-24T12:00:00+08:00">
+                2019-07-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/源码分析/" itemprop="url" rel="index">
+                    <span itemprop="name">源码分析</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/07/24/2019-07-24-dubbo源码分析4 dubbo export service/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/07/24/2019-07-24-dubbo源码分析4 dubbo export service/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>计划阅读调试下Dubbo的源码，结合官方源码分析<a href="http://dubbo.apache.org/zh-cn/docs/source_code_guide/" target="_blank" rel="noopener">Dubbo</a>，自身再分析总结</p>
+</blockquote>
+<blockquote>
+<p>本文对应的<a href="http://dubbo.apache.org/zh-cn/docs/source_code_guide/export-service.html" target="_blank" rel="noopener">Dubbo 服务导出</a></p>
+</blockquote>
+<h3 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h3><p>接上一节，继续介绍<code>doExportUrls</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SuppressWarnings</span>(&#123;<span class="string">"unchecked"</span>, <span class="string">"rawtypes"</span>&#125;)</span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">doExportUrls</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 加载注册中心的URL</span></span><br><span class="line">    List&lt;URL&gt; registryURLs = loadRegistries(<span class="keyword">true</span>);</span><br><span class="line">    <span class="keyword">for</span> (ProtocolConfig protocolConfig : protocols) &#123;</span><br><span class="line">        <span class="comment">// 对于每个协议都进行注册</span></span><br><span class="line">        doExportUrlsFor1Protocol(protocolConfig, registryURLs);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dubbo:registry</span> <span class="attr">address</span>=<span class="string">"$&#123;zookeeper_url&#125;"</span> <span class="attr">client</span>=<span class="string">"curator2"</span></span></span><br><span class="line"><span class="tag">    <span class="attr">file</span>=<span class="string">"dubbo/dubbo.cache.$&#123;SERVER_NAME&#125;"</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> List&lt;URL&gt; <span class="title">loadRegistries</span><span class="params">(<span class="keyword">boolean</span> provider)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 校验注册中心配置</span></span><br><span class="line">    checkRegistry();</span><br><span class="line">    List&lt;URL&gt; registryList = <span class="keyword">new</span> ArrayList&lt;URL&gt;();</span><br><span class="line">    <span class="keyword">if</span> (registries != <span class="keyword">null</span> &amp;&amp; registries.size() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">for</span> (RegistryConfig config : registries) &#123;</span><br><span class="line">            String address = config.getAddress();</span><br><span class="line">            <span class="keyword">if</span> (address == <span class="keyword">null</span> || address.length() == <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="comment">// 替换为 0.0.0.0</span></span><br><span class="line">                address = Constants.ANYHOST_VALUE;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// 从系统参数中获取注册地址</span></span><br><span class="line">            String sysaddress = System.getProperty(<span class="string">"dubbo.registry.address"</span>);</span><br><span class="line">            <span class="keyword">if</span> (sysaddress != <span class="keyword">null</span> &amp;&amp; sysaddress.length() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                address = sysaddress;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (address != <span class="keyword">null</span> &amp;&amp; address.length() &gt; <span class="number">0</span></span><br><span class="line">                    &amp;&amp; !RegistryConfig.NO_AVAILABLE.equalsIgnoreCase(address)) &#123;</span><br><span class="line">                Map&lt;String, String&gt; map = <span class="keyword">new</span> HashMap&lt;String, String&gt;();</span><br><span class="line">                <span class="comment">// appendParameters将对象中get方法的参数填入到map中</span></span><br><span class="line">                appendParameters(map, application);</span><br><span class="line">                appendParameters(map, config);</span><br><span class="line">                map.put(<span class="string">"path"</span>, RegistryService.class.getName());</span><br><span class="line">                map.put(<span class="string">"dubbo"</span>, Version.getVersion());</span><br><span class="line">                map.put(Constants.TIMESTAMP_KEY, String.valueOf(System.currentTimeMillis()));</span><br><span class="line">                <span class="keyword">if</span> (ConfigUtils.getPid() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                    map.put(Constants.PID_KEY, String.valueOf(ConfigUtils.getPid()));</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="comment">// map中没有协议值的话，如果含有remote扩展则只暴露远程服务，否则只暴露本地服务</span></span><br><span class="line">                <span class="keyword">if</span> (!map.containsKey(<span class="string">"protocol"</span>)) &#123;</span><br><span class="line">                    <span class="keyword">if</span> (ExtensionLoader.getExtensionLoader(RegistryFactory.class).hasExtension(<span class="string">"remote"</span>)) &#123;</span><br><span class="line">                        map.put(<span class="string">"protocol"</span>, <span class="string">"remote"</span>);</span><br><span class="line">                    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                        map.put(<span class="string">"protocol"</span>, <span class="string">"dubbo"</span>);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">                List&lt;URL&gt; urls = UrlUtils.parseURLs(address, map);</span><br><span class="line">                <span class="keyword">for</span> (URL url : urls) &#123;</span><br><span class="line">                    url = url.addParameter(Constants.REGISTRY_KEY, url.getProtocol());</span><br><span class="line">                    <span class="comment">// 设置协议为register</span></span><br><span class="line">                    url = url.setProtocol(Constants.REGISTRY_PROTOCOL);</span><br><span class="line">                    <span class="comment">// (服务提供者 &amp;&amp; register = true 或 null) </span></span><br><span class="line">                    <span class="comment">//    || (非服务提供者 &amp;&amp; subscribe = true 或 null)</span></span><br><span class="line">                    <span class="keyword">if</span> ((provider &amp;&amp; url.getParameter(Constants.REGISTER_KEY, <span class="keyword">true</span>))</span><br><span class="line">                            || (!provider &amp;&amp; url.getParameter(Constants.SUBSCRIBE_KEY, <span class="keyword">true</span>))) &#123;</span><br><span class="line">                        registryList.add(url);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> registryList;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面的逻辑主要初始化register列表，用于后续的对每个协议都要暴露服务</p>
+<p>后续将进行服务URL的组装以及服务的本地暴露和远程暴露</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">doExportUrlsFor1Protocol</span><span class="params">(ProtocolConfig protocolConfig, List&lt;URL&gt; registryURLs)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 协议为空则设为dubbo</span></span><br><span class="line">    String name = protocolConfig.getName();</span><br><span class="line">    <span class="keyword">if</span> (name == <span class="keyword">null</span> || name.length() == <span class="number">0</span>) &#123;</span><br><span class="line">        name = <span class="string">"dubbo"</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 设置side， dubbo version ， timestamp， pid等信息</span></span><br><span class="line">    Map&lt;String, String&gt; map = <span class="keyword">new</span> HashMap&lt;String, String&gt;();</span><br><span class="line">    map.put(Constants.SIDE_KEY, Constants.PROVIDER_SIDE);</span><br><span class="line">    map.put(Constants.DUBBO_VERSION_KEY, Version.getProtocolVersion());</span><br><span class="line">    map.put(Constants.TIMESTAMP_KEY, String.valueOf(System.currentTimeMillis()));</span><br><span class="line">    <span class="keyword">if</span> (ConfigUtils.getPid() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        map.put(Constants.PID_KEY, String.valueOf(ConfigUtils.getPid()));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 将配置类中的信息添加到map中</span></span><br><span class="line">    appendParameters(map, application);</span><br><span class="line">    appendParameters(map, <span class="keyword">module</span>);</span><br><span class="line">    appendParameters(map, provider, Constants.DEFAULT_KEY);</span><br><span class="line">    appendParameters(map, protocolConfig);</span><br><span class="line">    appendParameters(map, <span class="keyword">this</span>);</span><br><span class="line">    <span class="comment">// 解析&lt;dubbo:method&gt;信息</span></span><br><span class="line">    <span class="keyword">if</span> (methods != <span class="keyword">null</span> &amp;&amp; !methods.isEmpty()) &#123;</span><br><span class="line">        <span class="keyword">for</span> (MethodConfig method : methods) &#123;</span><br><span class="line">            appendParameters(map, method, method.getName());</span><br><span class="line">            <span class="comment">// 设置重试，对应到map的key为xxx.retry</span></span><br><span class="line">            String retryKey = method.getName() + <span class="string">".retry"</span>;</span><br><span class="line">            <span class="keyword">if</span> (map.containsKey(retryKey)) &#123;</span><br><span class="line">                String retryValue = map.remove(retryKey);</span><br><span class="line">                <span class="comment">// 如果未设置retry则设置为0</span></span><br><span class="line">                <span class="keyword">if</span> (<span class="string">"false"</span>.equals(retryValue)) &#123;</span><br><span class="line">                    map.put(method.getName() + <span class="string">".retries"</span>, <span class="string">"0"</span>);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            List&lt;ArgumentConfig&gt; arguments = method.getArguments();</span><br><span class="line">            <span class="comment">// 如果方法参数配置不为空则 解析 &lt;dubbo:argument&gt; 信息</span></span><br><span class="line">            <span class="keyword">if</span> (arguments != <span class="keyword">null</span> &amp;&amp; !arguments.isEmpty()) &#123;</span><br><span class="line">                <span class="keyword">for</span> (ArgumentConfig argument : arguments) &#123;</span><br><span class="line">                    <span class="comment">// 如果参数类型不为空</span></span><br><span class="line">                    <span class="keyword">if</span> (argument.getType() != <span class="keyword">null</span> &amp;&amp; argument.getType().length() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                        Method[] methods = interfaceClass.getMethods();</span><br><span class="line">                        <span class="comment">// visit all methods</span></span><br><span class="line">                        <span class="keyword">if</span> (methods != <span class="keyword">null</span> &amp;&amp; methods.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; methods.length; i++) &#123;</span><br><span class="line">                                String methodName = methods[i].getName();</span><br><span class="line">                                <span class="comment">// 找到此方法</span></span><br><span class="line">                                <span class="keyword">if</span> (methodName.equals(method.getName())) &#123;</span><br><span class="line">                                    Class&lt;?&gt;[] argtypes = methods[i].getParameterTypes();</span><br><span class="line">                                    <span class="comment">// 获取方法的参数类型</span></span><br><span class="line">                                    <span class="keyword">if</span> (argument.getIndex() != -<span class="number">1</span>) &#123;</span><br><span class="line">                                        <span class="comment">// 如果参数的索引不为-1</span></span><br><span class="line">                                        <span class="keyword">if</span> (argtypes[argument.getIndex()].getName().equals(argument.getType())) &#123;</span><br><span class="line">                                            <span class="comment">// 如果参数类型一致，则填充argumentconfig信息到map中</span></span><br><span class="line">                                            appendParameters(map, argument, method.getName() + <span class="string">"."</span> + argument.getIndex());</span><br><span class="line">                                        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                                            <span class="comment">// 如果不一致抛出异常</span></span><br><span class="line">                                            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"argument config error : the index attribute and type attribute not match :index :"</span> + argument.getIndex() + <span class="string">", type:"</span> + argument.getType());</span><br><span class="line">                                        &#125;</span><br><span class="line">                                    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                                        <span class="comment">// 如果参数的索引值为-1，即没有填充</span></span><br><span class="line">                                        <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; argtypes.length; j++) &#123;</span><br><span class="line">                                            <span class="comment">// 从参数中匹配类型</span></span><br><span class="line">                                            Class&lt;?&gt; argclazz = argtypes[j];</span><br><span class="line">                                            <span class="keyword">if</span> (argclazz.getName().equals(argument.getType())) &#123;</span><br><span class="line">                                                appendParameters(map, argument, method.getName() + <span class="string">"."</span> + j);</span><br><span class="line">                                                <span class="keyword">if</span> (argument.getIndex() != -<span class="number">1</span> &amp;&amp; argument.getIndex() != j) &#123;</span><br><span class="line">                                                    <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"argument config error : the index attribute and type attribute not match :index :"</span> + argument.getIndex() + <span class="string">", type:"</span> + argument.getType());</span><br><span class="line">                                                &#125;</span><br><span class="line">                                            &#125;</span><br><span class="line">                                        &#125;</span><br><span class="line">                                    &#125;</span><br><span class="line">                                &#125;</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (argument.getIndex() != -<span class="number">1</span>) &#123;</span><br><span class="line">                        <span class="comment">// 如果参数的索引不为-1，并且参数类型为空，添加argumentconfig信息到map中</span></span><br><span class="line">                        appendParameters(map, argument, method.getName() + <span class="string">"."</span> + argument.getIndex());</span><br><span class="line">                    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"argument config must set index or type attribute.eg: &lt;dubbo:argument index='0' .../&gt; or &lt;dubbo:argument type=xxx .../&gt;"</span>);</span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="comment">// end of methods for</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//如果为通用服务</span></span><br><span class="line">    <span class="keyword">if</span> (ProtocolUtils.isGeneric(generic)) &#123;</span><br><span class="line">        map.put(Constants.GENERIC_KEY, generic);</span><br><span class="line">        map.put(Constants.METHODS_KEY, Constants.ANY_VALUE);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        String revision = Version.getVersion(interfaceClass, version);</span><br><span class="line">        <span class="keyword">if</span> (revision != <span class="keyword">null</span> &amp;&amp; revision.length() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            map.put(<span class="string">"revision"</span>, revision);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 为接口生成包装类</span></span><br><span class="line">        String[] methods = Wrapper.getWrapper(interfaceClass).getMethodNames();</span><br><span class="line">        <span class="keyword">if</span> (methods.length == <span class="number">0</span>) &#123;</span><br><span class="line">            logger.warn(<span class="string">"NO method found in service interface "</span> + interfaceClass.getName());</span><br><span class="line">            map.put(Constants.METHODS_KEY, Constants.ANY_VALUE);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 将方法名用逗号连接</span></span><br><span class="line">            map.put(Constants.METHODS_KEY, StringUtils.join(<span class="keyword">new</span> HashSet&lt;String&gt;(Arrays.asList(methods)), <span class="string">","</span>));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (!ConfigUtils.isEmpty(token)) &#123;</span><br><span class="line">        <span class="keyword">if</span> (ConfigUtils.isDefault(token)) &#123;</span><br><span class="line">            map.put(Constants.TOKEN_KEY, UUID.randomUUID().toString());</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            map.put(Constants.TOKEN_KEY, token);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 如果协议为injvm</span></span><br><span class="line">    <span class="keyword">if</span> (Constants.LOCAL_PROTOCOL.equals(protocolConfig.getName())) &#123;</span><br><span class="line">        protocolConfig.setRegister(<span class="keyword">false</span>);</span><br><span class="line">        map.put(<span class="string">"notify"</span>, <span class="string">"false"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 获取上下文路径</span></span><br><span class="line">    String contextPath = protocolConfig.getContextpath();</span><br><span class="line">    <span class="keyword">if</span> ((contextPath == <span class="keyword">null</span> || contextPath.length() == <span class="number">0</span>) &amp;&amp; provider != <span class="keyword">null</span>) &#123;</span><br><span class="line">        contextPath = provider.getContextpath();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取host与port</span></span><br><span class="line">    String host = <span class="keyword">this</span>.findConfigedHosts(protocolConfig, registryURLs, map);</span><br><span class="line">    Integer port = <span class="keyword">this</span>.findConfigedPorts(protocolConfig, name, map);</span><br><span class="line">    URL url = <span class="keyword">new</span> URL(name, host, port, (contextPath == <span class="keyword">null</span> || contextPath.length() == <span class="number">0</span> ? <span class="string">""</span> : contextPath + <span class="string">"/"</span>) + path, map);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ........</span></span><br><span class="line">    <span class="comment">// ........</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面代码介绍了导出服务中组装URL的部分，主要是对各个根据配置参数以及系统参数组装dubbo URL</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 此为doExportUrlsFor1Protocol后半部分</span></span><br><span class="line"><span class="keyword">if</span> (ExtensionLoader.getExtensionLoader(ConfiguratorFactory.class)</span><br><span class="line">        .hasExtension(url.getProtocol())) &#123;</span><br><span class="line">    <span class="comment">// 加载ConfiguratorFactory并配置url</span></span><br><span class="line">    url = ExtensionLoader.getExtensionLoader(ConfiguratorFactory.class)</span><br><span class="line">            .getExtension(url.getProtocol()).getConfigurator(url).configure(url);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">String scope = url.getParameter(Constants.SCOPE_KEY);</span><br><span class="line"><span class="comment">// 如果为N/A则不配置</span></span><br><span class="line"><span class="keyword">if</span> (!Constants.SCOPE_NONE.toString().equalsIgnoreCase(scope)) &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果不为remote则导出到本地</span></span><br><span class="line">    <span class="keyword">if</span> (!Constants.SCOPE_REMOTE.toString().equalsIgnoreCase(scope)) &#123;</span><br><span class="line">        exportLocal(url);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 如果不为local则导出到远程</span></span><br><span class="line">    <span class="keyword">if</span> (!Constants.SCOPE_LOCAL.toString().equalsIgnoreCase(scope)) &#123;</span><br><span class="line">        <span class="keyword">if</span> (logger.isInfoEnabled()) &#123;</span><br><span class="line">            logger.info(<span class="string">"Export dubbo service "</span> + interfaceClass.getName() + <span class="string">" to url "</span> + url);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (registryURLs != <span class="keyword">null</span> &amp;&amp; !registryURLs.isEmpty()) &#123;</span><br><span class="line">            <span class="keyword">for</span> (URL registryURL : registryURLs) &#123;</span><br><span class="line">                url = url.addParameterIfAbsent(Constants.DYNAMIC_KEY, registryURL.getParameter(Constants.DYNAMIC_KEY));</span><br><span class="line">                <span class="comment">// 加载监视器</span></span><br><span class="line">                URL monitorUrl = loadMonitor(registryURL);</span><br><span class="line">                <span class="keyword">if</span> (monitorUrl != <span class="keyword">null</span>) &#123;</span><br><span class="line">                    url = url.addParameterAndEncoded(Constants.MONITOR_KEY, monitorUrl.toFullString());</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span> (logger.isInfoEnabled()) &#123;</span><br><span class="line">                    logger.info(<span class="string">"Register dubbo service "</span> + interfaceClass.getName() + <span class="string">" url "</span> + url + <span class="string">" to registry "</span> + registryURL);</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="comment">// 选择动态代理方式 jdk/javassist 默认为javassit</span></span><br><span class="line">                String proxy = url.getParameter(Constants.PROXY_KEY);</span><br><span class="line">                <span class="keyword">if</span> (StringUtils.isNotEmpty(proxy)) &#123;</span><br><span class="line">                    registryURL = registryURL.addParameter(Constants.PROXY_KEY, proxy);</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="comment">// 根据接口以及实现类生成invoker</span></span><br><span class="line">                Invoker&lt;?&gt; invoker = proxyFactory.getInvoker(ref, (Class) interfaceClass, registryURL.addParameterAndEncoded(Constants.EXPORT_KEY, url.toFullString()));</span><br><span class="line">                DelegateProviderMetaDataInvoker wrapperInvoker = <span class="keyword">new</span> DelegateProviderMetaDataInvoker(invoker, <span class="keyword">this</span>);</span><br><span class="line"></span><br><span class="line">                <span class="comment">// 导出服务</span></span><br><span class="line">                Exporter&lt;?&gt; exporter = protocol.export(wrapperInvoker);</span><br><span class="line">                exporters.add(exporter);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 不需要注册，直接导出服务</span></span><br><span class="line">            Invoker&lt;?&gt; invoker = proxyFactory.getInvoker(ref, (Class) interfaceClass, url);</span><br><span class="line">            DelegateProviderMetaDataInvoker wrapperInvoker = <span class="keyword">new</span> DelegateProviderMetaDataInvoker(invoker, <span class="keyword">this</span>);</span><br><span class="line"></span><br><span class="line">            Exporter&lt;?&gt; exporter = protocol.export(wrapperInvoker);</span><br><span class="line">            exporters.add(exporter);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">this</span>.urls.add(url);</span><br></pre></td></tr></table></figure>
+
+<p>上面代码可以看出来核心部分在生成Invoker部分，是后续导出服务的前提</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">JavassistProxyFactory</span> <span class="keyword">extends</span> <span class="title">AbstractProxyFactory</span> </span>&#123;</span><br><span class="line">    <span class="comment">// ............</span></span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> &lt;T&gt; <span class="function">Invoker&lt;T&gt; <span class="title">getInvoker</span><span class="params">(T proxy, Class&lt;T&gt; type, URL url)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 生成包装类</span></span><br><span class="line">        <span class="keyword">final</span> Wrapper wrapper = Wrapper.getWrapper(proxy.getClass().getName().indexOf(<span class="string">'$'</span>) &lt; <span class="number">0</span> ? proxy.getClass() : type);</span><br><span class="line">        <span class="comment">// 返回匿名类</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> AbstractProxyInvoker&lt;T&gt;(proxy, type, url) &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="function"><span class="keyword">protected</span> Object <span class="title">doInvoke</span><span class="params">(T proxy, String methodName,</span></span></span><br><span class="line"><span class="function"><span class="params">                                      Class&lt;?&gt;[] parameterTypes,</span></span></span><br><span class="line"><span class="function"><span class="params">                                      Object[] arguments)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">                <span class="comment">// 包装类调用</span></span><br><span class="line">                <span class="keyword">return</span> wrapper.invokeMethod(proxy, methodName, parameterTypes, arguments);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>从上面代码来看，getInvoker代码比较简单，主要逻辑在生成包装类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Wrapper <span class="title">getWrapper</span><span class="params">(Class&lt;?&gt; c)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">while</span> (ClassGenerator.isDynamicClass(c)) <span class="comment">// can not wrapper on dynamic class.</span></span><br><span class="line">        c = c.getSuperclass();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (c == Object.class)</span><br><span class="line">        <span class="keyword">return</span> OBJECT_WRAPPER;</span><br><span class="line"></span><br><span class="line">    Wrapper ret = WRAPPER_MAP.get(c);</span><br><span class="line">    <span class="keyword">if</span> (ret == <span class="keyword">null</span>) &#123;</span><br><span class="line">        ret = makeWrapper(c);</span><br><span class="line">        WRAPPER_MAP.put(c, ret);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面的代码主要是缓存的操作。生成类在makeWrapper中。makeWrapper方法比较复杂</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> Wrapper <span class="title">makeWrapper</span><span class="params">(Class&lt;?&gt; c)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (c.isPrimitive())</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"Can not create wrapper for primitive type: "</span> + c);</span><br><span class="line"></span><br><span class="line">    String name = c.getName();</span><br><span class="line">    ClassLoader cl = ClassHelper.getClassLoader(c);</span><br><span class="line"></span><br><span class="line">    StringBuilder c1 = <span class="keyword">new</span> StringBuilder(<span class="string">"public void setPropertyValue(Object o, String n, Object v)&#123; "</span>);</span><br><span class="line">    StringBuilder c2 = <span class="keyword">new</span> StringBuilder(<span class="string">"public Object getPropertyValue(Object o, String n)&#123; "</span>);</span><br><span class="line">    StringBuilder c3 = <span class="keyword">new</span> StringBuilder(<span class="string">"public Object invokeMethod(Object o, String n, Class[] p, Object[] v) throws "</span> + InvocationTargetException.class.getName() + <span class="string">"&#123; "</span>);</span><br><span class="line"></span><br><span class="line">    c1.append(name).append(<span class="string">" w; try&#123; w = (("</span>).append(name).append(<span class="string">")$1); &#125;catch(Throwable e)&#123; throw new IllegalArgumentException(e); &#125;"</span>);</span><br><span class="line">    c2.append(name).append(<span class="string">" w; try&#123; w = (("</span>).append(name).append(<span class="string">")$1); &#125;catch(Throwable e)&#123; throw new IllegalArgumentException(e); &#125;"</span>);</span><br><span class="line">    c3.append(name).append(<span class="string">" w; try&#123; w = (("</span>).append(name).append(<span class="string">")$1); &#125;catch(Throwable e)&#123; throw new IllegalArgumentException(e); &#125;"</span>);</span><br><span class="line"></span><br><span class="line">    Map&lt;String, Class&lt;?&gt;&gt; pts = <span class="keyword">new</span> HashMap&lt;String, Class&lt;?&gt;&gt;(); <span class="comment">// &lt;property name, property types&gt;</span></span><br><span class="line">    Map&lt;String, Method&gt; ms = <span class="keyword">new</span> LinkedHashMap&lt;String, Method&gt;(); <span class="comment">// &lt;method desc, Method instance&gt;</span></span><br><span class="line">    List&lt;String&gt; mns = <span class="keyword">new</span> ArrayList&lt;String&gt;(); <span class="comment">// method names.</span></span><br><span class="line">    List&lt;String&gt; dmns = <span class="keyword">new</span> ArrayList&lt;String&gt;(); <span class="comment">// declaring method names.</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// get all public field.</span></span><br><span class="line">    <span class="keyword">for</span> (Field f : c.getFields()) &#123;</span><br><span class="line">        String fn = f.getName();</span><br><span class="line">        Class&lt;?&gt; ft = f.getType();</span><br><span class="line">        <span class="keyword">if</span> (Modifier.isStatic(f.getModifiers()) || Modifier.isTransient(f.getModifiers()))</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line"></span><br><span class="line">        c1.append(<span class="string">" if( $2.equals(\""</span>).append(fn).append(<span class="string">"\") )&#123; w."</span>).append(fn).append(<span class="string">"="</span>).append(arg(ft, <span class="string">"$3"</span>)).append(<span class="string">"; return; &#125;"</span>);</span><br><span class="line">        c2.append(<span class="string">" if( $2.equals(\""</span>).append(fn).append(<span class="string">"\") )&#123; return ($w)w."</span>).append(fn).append(<span class="string">"; &#125;"</span>);</span><br><span class="line">        pts.put(fn, ft);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    Method[] methods = c.getMethods();</span><br><span class="line">    <span class="comment">// get all public method.</span></span><br><span class="line">    <span class="keyword">boolean</span> hasMethod = hasMethods(methods);</span><br><span class="line">    <span class="keyword">if</span> (hasMethod) &#123;</span><br><span class="line">        c3.append(<span class="string">" try&#123;"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (Method m : methods) &#123;</span><br><span class="line">        <span class="keyword">if</span> (m.getDeclaringClass() == Object.class) <span class="comment">//ignore Object's method.</span></span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line"></span><br><span class="line">        String mn = m.getName();</span><br><span class="line">        c3.append(<span class="string">" if( \""</span>).append(mn).append(<span class="string">"\".equals( $2 ) "</span>);</span><br><span class="line">        <span class="keyword">int</span> len = m.getParameterTypes().length;</span><br><span class="line">        c3.append(<span class="string">" &amp;&amp; "</span>).append(<span class="string">" $3.length == "</span>).append(len);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">boolean</span> override = <span class="keyword">false</span>;</span><br><span class="line">        <span class="keyword">for</span> (Method m2 : methods) &#123;</span><br><span class="line">            <span class="keyword">if</span> (m != m2 &amp;&amp; m.getName().equals(m2.getName())) &#123;</span><br><span class="line">                override = <span class="keyword">true</span>;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (override) &#123;</span><br><span class="line">            <span class="keyword">if</span> (len &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">for</span> (<span class="keyword">int</span> l = <span class="number">0</span>; l &lt; len; l++) &#123;</span><br><span class="line">                    c3.append(<span class="string">" &amp;&amp; "</span>).append(<span class="string">" $3["</span>).append(l).append(<span class="string">"].getName().equals(\""</span>)</span><br><span class="line">                            .append(m.getParameterTypes()[l].getName()).append(<span class="string">"\")"</span>);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        c3.append(<span class="string">" ) &#123; "</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (m.getReturnType() == Void.TYPE)</span><br><span class="line">            c3.append(<span class="string">" w."</span>).append(mn).append(<span class="string">'('</span>).append(args(m.getParameterTypes(), <span class="string">"$4"</span>)).append(<span class="string">");"</span>).append(<span class="string">" return null;"</span>);</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            c3.append(<span class="string">" return ($w)w."</span>).append(mn).append(<span class="string">'('</span>).append(args(m.getParameterTypes(), <span class="string">"$4"</span>)).append(<span class="string">");"</span>);</span><br><span class="line"></span><br><span class="line">        c3.append(<span class="string">" &#125;"</span>);</span><br><span class="line"></span><br><span class="line">        mns.add(mn);</span><br><span class="line">        <span class="keyword">if</span> (m.getDeclaringClass() == c)</span><br><span class="line">            dmns.add(mn);</span><br><span class="line">        ms.put(ReflectUtils.getDesc(m), m);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (hasMethod) &#123;</span><br><span class="line">        c3.append(<span class="string">" &#125; catch(Throwable e) &#123; "</span>);</span><br><span class="line">        c3.append(<span class="string">"     throw new java.lang.reflect.InvocationTargetException(e); "</span>);</span><br><span class="line">        c3.append(<span class="string">" &#125;"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    c3.append(<span class="string">" throw new "</span> + NoSuchMethodException.class.getName() + <span class="string">"(\"Not found method \\\"\"+$2+\"\\\" in class "</span> + c.getName() + <span class="string">".\"); &#125;"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">//。。。。。。。。。。。。。。。</span></span><br><span class="line"></span><br><span class="line">    cc.addMethod(c1.toString());</span><br><span class="line">    cc.addMethod(c2.toString());</span><br><span class="line">    cc.addMethod(c3.toString());</span><br><span class="line"></span><br><span class="line">   <span class="comment">//。。。。。。。。。。。。。。。。</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面的代码用来生成Wrapper类，Wrapper类主要将接口中方法的信息都储存起来，通过解析getter setter is方法获得属性。</p>
+<p>但我们目前主要关心的invokeMethod方法。debug之后可以看出来invokeMethod对应的源码，主要是根据接口中方法类型的不同来选择调用接口中不同的方法。</p>
+<p>javassist不是本文重点，暂不介绍。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//配置为none不暴露</span></span><br><span class="line"><span class="keyword">if</span> (!Constants.SCOPE_NONE.toString().equalsIgnoreCase(scope)) &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//配置不是remote的情况下做本地暴露 (配置为remote，则表示只暴露远程服务)</span></span><br><span class="line">    <span class="keyword">if</span> (!Constants.SCOPE_REMOTE.toString().equalsIgnoreCase(scope)) &#123;</span><br><span class="line">        exportLocal(url);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//如果配置不是local则暴露为远程服务.(配置为local，则表示只暴露本地服务)</span></span><br><span class="line">    <span class="keyword">if</span> (!Constants.SCOPE_LOCAL.toString().equalsIgnoreCase(scope)) &#123;</span><br><span class="line">        <span class="comment">// 。。。。。</span></span><br><span class="line">        <span class="keyword">if</span> (registryURLs != <span class="keyword">null</span> &amp;&amp; registryURLs.size() &gt; <span class="number">0</span></span><br><span class="line">                &amp;&amp; url.getParameter(<span class="string">"register"</span>, <span class="keyword">true</span>)) &#123;</span><br><span class="line">            <span class="keyword">for</span> (URL registryURL : registryURLs) &#123;</span><br><span class="line">                <span class="comment">// 。。。。。。。</span></span><br><span class="line">                Invoker&lt;?&gt; invoker = proxyFactory.getInvoker(ref, (Class) interfaceClass, registryURL.addParameterAndEncoded(Constants.EXPORT_KEY, url.toFullString()));</span><br><span class="line"></span><br><span class="line">                Exporter&lt;?&gt; exporter = protocol.export(invoker);</span><br><span class="line">                exporters.add(exporter);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            Invoker&lt;?&gt; invoker = proxyFactory.getInvoker(ref, (Class) interfaceClass, url);</span><br><span class="line"></span><br><span class="line">            Exporter&lt;?&gt; exporter = protocol.export(invoker);</span><br><span class="line">            exporters.add(exporter);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>回顾之前的代码，导出服务时首先导出本地服务，之后根据register信息导出远程服务</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">exportLocal</span><span class="params">(URL url)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 判断是否已经是injvm协议，如果是因为之前的已经导出过了</span></span><br><span class="line">    <span class="comment">// 但这里似乎有个问题，如果scope为local并且协议为injvm，就不会导出服务了</span></span><br><span class="line">    <span class="keyword">if</span> (!Constants.LOCAL_PROTOCOL.equalsIgnoreCase(url.getProtocol())) &#123;</span><br><span class="line">        URL local = URL.valueOf(url.toFullString())</span><br><span class="line">                .setProtocol(Constants.LOCAL_PROTOCOL)</span><br><span class="line">                .setHost(NetUtils.LOCALHOST)</span><br><span class="line">                .setPort(<span class="number">0</span>);</span><br><span class="line">        Exporter&lt;?&gt; exporter = protocol.export(</span><br><span class="line">                proxyFactory.getInvoker(ref, (Class) interfaceClass, local));</span><br><span class="line">        exporters.add(exporter);</span><br><span class="line">        logger.info(<span class="string">"Export dubbo service "</span> + interfaceClass.getName() + <span class="string">" to local registry"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对于Injvm本地导出只是简单的生成一个InjvmExporter即可</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> &lt;T&gt; <span class="function">Exporter&lt;T&gt; <span class="title">export</span><span class="params">(Invoker&lt;T&gt; invoker)</span> <span class="keyword">throws</span> RpcException </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> InjvmExporter&lt;T&gt;(invoker, invoker.getUrl().getServiceKey(), exporterMap);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>重点关注需要注册的协议。进入RegisterProtocol中</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> &lt;T&gt; <span class="function">Exporter&lt;T&gt; <span class="title">export</span><span class="params">(<span class="keyword">final</span> Invoker&lt;T&gt; originInvoker)</span> <span class="keyword">throws</span> RpcException </span>&#123;</span><br><span class="line">    <span class="comment">// 导出服务</span></span><br><span class="line">    <span class="keyword">final</span> ExporterChangeableWrapper&lt;T&gt; exporter = doLocalExport(originInvoker);</span><br><span class="line"></span><br><span class="line">    URL registryUrl = getRegistryUrl(originInvoker);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 注册</span></span><br><span class="line">    <span class="keyword">final</span> Registry registry = getRegistry(originInvoker);</span><br><span class="line">    <span class="keyword">final</span> URL registeredProviderUrl = getRegisteredProviderUrl(originInvoker);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 是否延迟注册</span></span><br><span class="line">    <span class="keyword">boolean</span> register = registeredProviderUrl.getParameter(<span class="string">"register"</span>, <span class="keyword">true</span>);</span><br><span class="line"></span><br><span class="line">    ProviderConsumerRegTable.registerProvider(originInvoker, registryUrl, registeredProviderUrl);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (register) &#123;</span><br><span class="line">        register(registryUrl, registeredProviderUrl);</span><br><span class="line">        ProviderConsumerRegTable.getProviderWrapper(originInvoker).setReg(<span class="keyword">true</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> URL overrideSubscribeUrl = getSubscribedOverrideUrl(registeredProviderUrl);</span><br><span class="line">    <span class="keyword">final</span> OverrideListener overrideSubscribeListener = <span class="keyword">new</span> OverrideListener(overrideSubscribeUrl, originInvoker);</span><br><span class="line">    overrideListeners.put(overrideSubscribeUrl, overrideSubscribeListener);</span><br><span class="line">    registry.subscribe(overrideSubscribeUrl, overrideSubscribeListener);</span><br><span class="line">    <span class="comment">// 每次都要返回一个DestroyableExporter</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> DestroyableExporter&lt;T&gt;(exporter, originInvoker, overrideSubscribeUrl, registeredProviderUrl);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>跟着主流程走，第一步是导出服务，进入doLocalExport中，</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> &lt;T&gt; <span class="function">ExporterChangeableWrapper&lt;T&gt; <span class="title">doLocalExport</span><span class="params">(<span class="keyword">final</span> Invoker&lt;T&gt; originInvoker)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 获取服务的key，由分组，版本号，接口，端口构成</span></span><br><span class="line">    String key = getCacheKey(originInvoker);</span><br><span class="line">    ExporterChangeableWrapper&lt;T&gt; exporter = (ExporterChangeableWrapper&lt;T&gt;) bounds.get(key);</span><br><span class="line">    <span class="keyword">if</span> (exporter == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">synchronized</span> (bounds) &#123;</span><br><span class="line">            exporter = (ExporterChangeableWrapper&lt;T&gt;) bounds.get(key);</span><br><span class="line">            <span class="keyword">if</span> (exporter == <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="comment">// 双重检查锁过后，获取到对原始的invoker的代理</span></span><br><span class="line">                <span class="keyword">final</span> Invoker&lt;?&gt; invokerDelegete = <span class="keyword">new</span> InvokerDelegete&lt;T&gt;(originInvoker, getProviderUrl(originInvoker));</span><br><span class="line">                <span class="comment">// 导出服务，默认为dubbo协议</span></span><br><span class="line">                exporter = <span class="keyword">new</span> ExporterChangeableWrapper&lt;T&gt;((Exporter&lt;T&gt;) protocol.export(invokerDelegete), originInvoker);</span><br><span class="line">                bounds.put(key, exporter);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> exporter;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>默认的协议为Dubbo，进入DubboProtocol中</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="keyword">public</span> &lt;T&gt; <span class="function">Exporter&lt;T&gt; <span class="title">export</span><span class="params">(Invoker&lt;T&gt; invoker)</span> <span class="keyword">throws</span> RpcException </span>&#123;</span><br><span class="line">    URL url = invoker.getUrl();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// export service.</span></span><br><span class="line">    String key = serviceKey(url);</span><br><span class="line">    DubboExporter&lt;T&gt; exporter = <span class="keyword">new</span> DubboExporter&lt;T&gt;(invoker, key, exporterMap);</span><br><span class="line">    exporterMap.put(key, exporter);</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 本地存根</span></span><br><span class="line">    Boolean isStubSupportEvent = url.getParameter(Constants.STUB_EVENT_KEY, Constants.DEFAULT_STUB_EVENT);</span><br><span class="line">    Boolean isCallbackservice = url.getParameter(Constants.IS_CALLBACK_SERVICE, <span class="keyword">false</span>);</span><br><span class="line">    <span class="keyword">if</span> (isStubSupportEvent &amp;&amp; !isCallbackservice) &#123;</span><br><span class="line">        String stubServiceMethods = url.getParameter(Constants.STUB_EVENT_METHODS_KEY);</span><br><span class="line">        <span class="keyword">if</span> (stubServiceMethods == <span class="keyword">null</span> || stubServiceMethods.length() == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (logger.isWarnEnabled()) &#123;</span><br><span class="line">                logger.warn(<span class="keyword">new</span> IllegalStateException(<span class="string">"consumer ["</span> + url.getParameter(Constants.INTERFACE_KEY) +</span><br><span class="line">                        <span class="string">"], has set stubproxy support event ,but no stub methods founded."</span>));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            stubServiceMethodsMap.put(url.getServiceKey(), stubServiceMethods);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 启动服务器</span></span><br><span class="line">    openServer(url);</span><br><span class="line">    optimizeSerialization(url);</span><br><span class="line">    <span class="keyword">return</span> exporter;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>继续进入openServer</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">openServer</span><span class="params">(URL url)</span> </span>&#123;</span><br><span class="line">    String key = url.getAddress();</span><br><span class="line">    <span class="keyword">boolean</span> isServer = url.getParameter(Constants.IS_SERVER_KEY, <span class="keyword">true</span>);</span><br><span class="line">    <span class="keyword">if</span> (isServer) &#123;</span><br><span class="line">        ExchangeServer server = serverMap.get(key);</span><br><span class="line">        <span class="keyword">if</span> (server == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="comment">// 创建服务</span></span><br><span class="line">            serverMap.put(key, createServer(url));</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 重置服务</span></span><br><span class="line">            server.reset(url);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> ExchangeServer <span class="title">createServer</span><span class="params">(URL url)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 默认readonly</span></span><br><span class="line">    url = url.addParameterIfAbsent(Constants.CHANNEL_READONLYEVENT_SENT_KEY, Boolean.TRUE.toString());</span><br><span class="line">    <span class="comment">// 默认心跳开启</span></span><br><span class="line">    url = url.addParameterIfAbsent(Constants.HEARTBEAT_KEY, String.valueOf(Constants.DEFAULT_HEARTBEAT));</span><br><span class="line">    <span class="comment">// 服务实现，默认为netty</span></span><br><span class="line">    String str = url.getParameter(Constants.SERVER_KEY, Constants.DEFAULT_REMOTING_SERVER);</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">if</span> (str != <span class="keyword">null</span> &amp;&amp; str.length() &gt; <span class="number">0</span> &amp;&amp; !ExtensionLoader.getExtensionLoader(Transporter.class).hasExtension(str))</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> RpcException(<span class="string">"Unsupported server type: "</span> + str + <span class="string">", url: "</span> + url);</span><br><span class="line"></span><br><span class="line">    url = url.addParameter(Constants.CODEC_KEY, DubboCodec.NAME);</span><br><span class="line">    ExchangeServer server;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="comment">// 创建server</span></span><br><span class="line">        server = Exchangers.bind(url, requestHandler);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (RemotingException e) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> RpcException(<span class="string">"Fail to start server(url: "</span> + url + <span class="string">") "</span> + e.getMessage(), e);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 获取client类型</span></span><br><span class="line">    str = url.getParameter(Constants.CLIENT_KEY);</span><br><span class="line">    <span class="keyword">if</span> (str != <span class="keyword">null</span> &amp;&amp; str.length() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="comment">// 检查是否由此类型扩展</span></span><br><span class="line">        Set&lt;String&gt; supportedTypes = ExtensionLoader.getExtensionLoader(Transporter.class).getSupportedExtensions();</span><br><span class="line">        <span class="keyword">if</span> (!supportedTypes.contains(str)) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> RpcException(<span class="string">"Unsupported client type: "</span> + str);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> server;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>之后进入<code>Exchangers#bind</code>中，</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Server <span class="title">bind</span><span class="params">(URL url, ChannelHandler... handlers)</span> <span class="keyword">throws</span> RemotingException </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (url == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"url == null"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (handlers == <span class="keyword">null</span> || handlers.length == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"handlers == null"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    ChannelHandler handler;</span><br><span class="line">    <span class="keyword">if</span> (handlers.length == <span class="number">1</span>) &#123;</span><br><span class="line">        handler = handlers[<span class="number">0</span>];</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        handler = <span class="keyword">new</span> ChannelHandlerDispatcher(handlers);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> getTransporter().bind(url, handler);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 通过SPI动态获取transporter 默认为nettyTransporter</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Transporter <span class="title">getTransporter</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> ExtensionLoader.getExtensionLoader(Transporter.class).getAdaptiveExtension();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>继续进入NettyTransporter</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">NettyTransporter</span> <span class="keyword">implements</span> <span class="title">Transporter</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String NAME = <span class="string">"netty"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Server <span class="title">bind</span><span class="params">(URL url, ChannelHandler listener)</span> <span class="keyword">throws</span> RemotingException </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> NettyServer(url, listener);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Client <span class="title">connect</span><span class="params">(URL url, ChannelHandler listener)</span> <span class="keyword">throws</span> RemotingException </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> NettyClient(url, listener);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可见bind函数就是创建了NettyServer，继续看下去，NettyServer继承了AbstractServer，主要逻辑在此构造函数以及子类doOpen模板方法中</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">AbstractServer</span><span class="params">(URL url, ChannelHandler handler)</span> <span class="keyword">throws</span> RemotingException </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>(url, handler);</span><br><span class="line">    localAddress = getUrl().toInetSocketAddress();</span><br><span class="line"></span><br><span class="line">    String bindIp = getUrl().getParameter(Constants.BIND_IP_KEY, getUrl().getHost());</span><br><span class="line">    <span class="keyword">int</span> bindPort = getUrl().getParameter(Constants.BIND_PORT_KEY, getUrl().getPort());</span><br><span class="line">    <span class="keyword">if</span> (url.getParameter(Constants.ANYHOST_KEY, <span class="keyword">false</span>) || NetUtils.isInvalidLocalHost(bindIp)) &#123;</span><br><span class="line">        bindIp = NetUtils.ANYHOST;</span><br><span class="line">    &#125;</span><br><span class="line">    bindAddress = <span class="keyword">new</span> InetSocketAddress(bindIp, bindPort);</span><br><span class="line">    <span class="keyword">this</span>.accepts = url.getParameter(Constants.ACCEPTS_KEY, Constants.DEFAULT_ACCEPTS);</span><br><span class="line">    <span class="keyword">this</span>.idleTimeout = url.getParameter(Constants.IDLE_TIMEOUT_KEY, Constants.DEFAULT_IDLE_TIMEOUT);</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        doOpen();</span><br><span class="line">        <span class="keyword">if</span> (logger.isInfoEnabled()) &#123;</span><br><span class="line">            logger.info(<span class="string">"Start "</span> + getClass().getSimpleName() + <span class="string">" bind "</span> + getBindAddress() + <span class="string">", export "</span> + getLocalAddress());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> RemotingException(url.toInetSocketAddress(), <span class="keyword">null</span>, <span class="string">"Failed to bind "</span> + getClass().getSimpleName()</span><br><span class="line">                + <span class="string">" on "</span> + getLocalAddress() + <span class="string">", cause: "</span> + t.getMessage(), t);</span><br><span class="line">    &#125;</span><br><span class="line">    DataStore dataStore = ExtensionLoader.getExtensionLoader(DataStore.class).getDefaultExtension();</span><br><span class="line">    executor = (ExecutorService) dataStore.get(Constants.EXECUTOR_SERVICE_COMPONENT_KEY, Integer.toString(url.getPort()));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// NettyServer</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doOpen</span><span class="params">()</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">    NettyHelper.setNettyLoggerFactory();</span><br><span class="line">    <span class="comment">// 设置线程池</span></span><br><span class="line">    ExecutorService boss = Executors.newCachedThreadPool(<span class="keyword">new</span> NamedThreadFactory(<span class="string">"NettyServerBoss"</span>, <span class="keyword">true</span>));</span><br><span class="line">    ExecutorService worker = Executors.newCachedThreadPool(<span class="keyword">new</span> NamedThreadFactory(<span class="string">"NettyServerWorker"</span>, <span class="keyword">true</span>));</span><br><span class="line">    ChannelFactory channelFactory = <span class="keyword">new</span> NioServerSocketChannelFactory(boss, worker, getUrl().getPositiveParameter(Constants.IO_THREADS_KEY, Constants.DEFAULT_IO_THREADS));</span><br><span class="line">    bootstrap = <span class="keyword">new</span> ServerBootstrap(channelFactory);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> NettyHandler nettyHandler = <span class="keyword">new</span> NettyHandler(getUrl(), <span class="keyword">this</span>);</span><br><span class="line">    channels = nettyHandler.getChannels();</span><br><span class="line">    <span class="comment">// https://issues.jboss.org/browse/NETTY-365</span></span><br><span class="line">    <span class="comment">// https://issues.jboss.org/browse/NETTY-379</span></span><br><span class="line">    <span class="comment">// final Timer timer = new HashedWheelTimer(new NamedThreadFactory("NettyIdleTimer", true));</span></span><br><span class="line">    bootstrap.setOption(<span class="string">"child.tcpNoDelay"</span>, <span class="keyword">true</span>);</span><br><span class="line">    bootstrap.setPipelineFactory(<span class="keyword">new</span> ChannelPipelineFactory() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> ChannelPipeline <span class="title">getPipeline</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            NettyCodecAdapter adapter = <span class="keyword">new</span> NettyCodecAdapter(getCodec(), getUrl(), NettyServer.<span class="keyword">this</span>);</span><br><span class="line">            ChannelPipeline pipeline = Channels.pipeline();</span><br><span class="line">            <span class="comment">/*int idleTimeout = getIdleTimeout();</span></span><br><span class="line"><span class="comment">            if (idleTimeout &gt; 10000) &#123;</span></span><br><span class="line"><span class="comment">                pipeline.addLast("timer", new IdleStateHandler(timer, idleTimeout / 1000, 0, 0));</span></span><br><span class="line"><span class="comment">            &#125;*/</span></span><br><span class="line">            pipeline.addLast(<span class="string">"decoder"</span>, adapter.getDecoder());</span><br><span class="line">            pipeline.addLast(<span class="string">"encoder"</span>, adapter.getEncoder());</span><br><span class="line">            pipeline.addLast(<span class="string">"handler"</span>, nettyHandler);</span><br><span class="line">            <span class="keyword">return</span> pipeline;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="comment">// 启动服务</span></span><br><span class="line">    channel = bootstrap.bind(getBindAddress());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面就是暴露远程服务的过程了。</p>
+<p>总结下来就是：</p>
+<ul>
+<li><p>监听ContextRefreshEvent事件。在此方法中暴露服务</p>
+</li>
+<li><p>检查dubbo核心配置，并根据默认值或者系统值进行填充，同时组装URL</p>
+</li>
+<li><p>加载所有的注册信息</p>
+</li>
+<li><p>对每个协议注册到所有的注册中心上</p>
+<ul>
+<li>根据核心配置组装map</li>
+<li>获取invoker</li>
+<li>暴露服务</li>
+</ul>
+</li>
+</ul>
+<p>在这个过程中涉及到几个核心接口</p>
+<ul>
+<li>Protocol 协议</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Protocol. (API/SPI, Singleton, ThreadSafe)</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> william.liangf</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@SPI</span>(<span class="string">"dubbo"</span>) <span class="comment">// 默认为DubboProtocol</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Protocol</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 获取缺省端口，当用户没有配置端口时使用。</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> 缺省端口</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">getDefaultPort</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 暴露远程服务：&lt;br&gt;</span></span><br><span class="line"><span class="comment">     * 1. 协议在接收请求时，应记录请求来源方地址信息：RpcContext.getContext().setRemoteAddress();&lt;br&gt;</span></span><br><span class="line"><span class="comment">     * 2. export()必须是幂等的，也就是暴露同一个URL的Invoker两次，和暴露一次没有区别。&lt;br&gt;</span></span><br><span class="line"><span class="comment">     * 3. export()传入的Invoker由框架实现并传入，协议不需要关心。&lt;br&gt;</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> &lt;T&gt;     服务的类型</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> invoker 服务的执行体</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> exporter 暴露服务的引用，用于取消暴露</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> RpcException 当暴露服务出错时抛出，比如端口已占用</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Adaptive</span></span><br><span class="line">    &lt;T&gt; <span class="function">Exporter&lt;T&gt; <span class="title">export</span><span class="params">(Invoker&lt;T&gt; invoker)</span> <span class="keyword">throws</span> RpcException</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 引用远程服务：&lt;br&gt;</span></span><br><span class="line"><span class="comment">     * 1. 当用户调用refer()所返回的Invoker对象的invoke()方法时，协议需相应执行同URL远端export()传入的Invoker对象的invoke()方法。&lt;br&gt;</span></span><br><span class="line"><span class="comment">     * 2. refer()返回的Invoker由协议实现，协议通常需要在此Invoker中发送远程请求。&lt;br&gt;</span></span><br><span class="line"><span class="comment">     * 3. 当url中有设置check=false时，连接失败不能抛出异常，并内部自动恢复。&lt;br&gt;</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> &lt;T&gt;  服务的类型</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> type 服务的类型</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> url  远程服务的URL地址</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> invoker 服务的本地代理</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> RpcException 当连接服务提供方失败时抛出</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Adaptive</span></span><br><span class="line">    &lt;T&gt; <span class="function">Invoker&lt;T&gt; <span class="title">refer</span><span class="params">(Class&lt;T&gt; type, URL url)</span> <span class="keyword">throws</span> RpcException</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 释放协议：&lt;br&gt;</span></span><br><span class="line"><span class="comment">     * 1. 取消该协议所有已经暴露和引用的服务。&lt;br&gt;</span></span><br><span class="line"><span class="comment">     * 2. 释放协议所占用的所有资源，比如连接和端口。&lt;br&gt;</span></span><br><span class="line"><span class="comment">     * 3. 协议在释放后，依然能暴露和引用新的服务。&lt;br&gt;</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">destroy</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>Transporter 传输层载体（TCP/UDP…）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Transporter. (SPI, Singleton, ThreadSafe)</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;</span></span><br><span class="line"><span class="comment"> * &lt;a href="http://en.wikipedia.org/wiki/Transport_Layer"&gt;Transport Layer&lt;/a&gt;</span></span><br><span class="line"><span class="comment"> * &lt;a href="http://en.wikipedia.org/wiki/Client%E2%80%93server_model"&gt;Client/Server&lt;/a&gt;</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@see</span> com.alibaba.dubbo.remoting.Transporters</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@SPI</span>(<span class="string">"netty"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Transporter</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Bind a server.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> url     server url</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> handler</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> server</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> RemotingException</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@see</span> com.alibaba.dubbo.remoting.Transporters#bind(URL, ChannelHandler...)</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Adaptive</span>(&#123;Constants.SERVER_KEY, Constants.TRANSPORTER_KEY&#125;)</span><br><span class="line">    <span class="function">Server <span class="title">bind</span><span class="params">(URL url, ChannelHandler handler)</span> <span class="keyword">throws</span> RemotingException</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Connect to a server.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> url     server url</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> handler</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> client</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> RemotingException</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@see</span> com.alibaba.dubbo.remoting.Transporters#connect(URL, ChannelHandler...)</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Adaptive</span>(&#123;Constants.CLIENT_KEY, Constants.TRANSPORTER_KEY&#125;)</span><br><span class="line">    <span class="function">Client <span class="title">connect</span><span class="params">(URL url, ChannelHandler handler)</span> <span class="keyword">throws</span> RemotingException</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Exchanger 交换器</p>
+</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Exchanger. (SPI, Singleton, ThreadSafe)</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;</span></span><br><span class="line"><span class="comment"> * &lt;a href="http://en.wikipedia.org/wiki/Message_Exchange_Pattern"&gt;Message Exchange Pattern&lt;/a&gt;</span></span><br><span class="line"><span class="comment"> * &lt;a href="http://en.wikipedia.org/wiki/Request-response"&gt;Request-Response&lt;/a&gt;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@SPI</span>(HeaderExchanger.NAME)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Exchanger</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * bind.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> url</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> handler</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> message server</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Adaptive</span>(&#123;Constants.EXCHANGER_KEY&#125;)</span><br><span class="line">    <span class="function">ExchangeServer <span class="title">bind</span><span class="params">(URL url, ExchangeHandler handler)</span> <span class="keyword">throws</span> RemotingException</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * connect.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> url</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> handler</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> message channel</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Adaptive</span>(&#123;Constants.EXCHANGER_KEY&#125;)</span><br><span class="line">    <span class="function">ExchangeClient <span class="title">connect</span><span class="params">(URL url, ExchangeHandler handler)</span> <span class="keyword">throws</span> RemotingException</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    shiyan
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://saltyx.github.io/2019/07/24/2019-07-24-dubbo源码分析4 dubbo export service/" title="Dubbo源码分析4-Dubbo 服务导出2">https://saltyx.github.io/2019/07/24/2019-07-24-dubbo源码分析4 dubbo export service/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+            <a href="/tags/Dubbo/" rel="tag"># Dubbo</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/07/23/2019-07-23-dubbo源码分析3 dubbo export service/" rel="next" title="Dubbo源码分析3-Dubbo 服务导出1">
+                <i class="fa fa-chevron-left"></i> Dubbo源码分析3-Dubbo 服务导出1
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/08/01/2019-08-01-dubbo源码分析5 dubbo export service/" rel="prev" title="Dubbo源码分析5-Dubbo 服务导出4">
+                Dubbo源码分析5-Dubbo 服务导出4 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">shiyan</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/saltyx" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:shiyan9128@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#源码分析"><span class="nav-number">1.</span> <span class="nav-text">源码分析</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shiyan</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://shiy4n.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'https://saltyx.github.io/2019/07/24/2019-07-24-dubbo源码分析4 dubbo export service/';
+          this.page.identifier = '2019/07/24/2019-07-24-dubbo源码分析4 dubbo export service/';
+          this.page.title = 'Dubbo源码分析4-Dubbo 服务导出2';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://shiy4n.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

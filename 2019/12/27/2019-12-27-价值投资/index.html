@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/favicon.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/assets/images/favicon.png?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="瞎写,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="炒股票好几年了，之前心里一直有个疑惑，炒股是怎么获取收益，又是获取谁的收益？ 一开始是瞎买，竟然还赚了。后面开始研究各种技术指标，什么MACD，金叉死叉，KDJ，量价指标，等等等等。那个时候我觉得只要坚持这些指标买卖，我就能赚钱。可是事实似乎和我想得不打一样，感觉指标的走向是随机的，滞后的。 后来知道了股票回测这种技术，我专门写了回测代码，跑了最近几年的所有股票的数据。。。发现了一个事实。。。通过">
+<meta name="keywords" content="瞎写">
+<meta property="og:type" content="article">
+<meta property="og:title" content="价值投资的一些想法">
+<meta property="og:url" content="https://saltyx.github.io/2019/12/27/2019-12-27-价值投资/index.html">
+<meta property="og:site_name" content="Focus on Java">
+<meta property="og:description" content="炒股票好几年了，之前心里一直有个疑惑，炒股是怎么获取收益，又是获取谁的收益？ 一开始是瞎买，竟然还赚了。后面开始研究各种技术指标，什么MACD，金叉死叉，KDJ，量价指标，等等等等。那个时候我觉得只要坚持这些指标买卖，我就能赚钱。可是事实似乎和我想得不打一样，感觉指标的走向是随机的，滞后的。 后来知道了股票回测这种技术，我专门写了回测代码，跑了最近几年的所有股票的数据。。。发现了一个事实。。。通过">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-12-27T14:28:38.454Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="价值投资的一些想法">
+<meta name="twitter:description" content="炒股票好几年了，之前心里一直有个疑惑，炒股是怎么获取收益，又是获取谁的收益？ 一开始是瞎买，竟然还赚了。后面开始研究各种技术指标，什么MACD，金叉死叉，KDJ，量价指标，等等等等。那个时候我觉得只要坚持这些指标买卖，我就能赚钱。可是事实似乎和我想得不打一样，感觉指标的走向是随机的，滞后的。 后来知道了股票回测这种技术，我专门写了回测代码，跑了最近几年的所有股票的数据。。。发现了一个事实。。。通过">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://saltyx.github.io/2019/12/27/2019-12-27-价值投资/">
+
+
+
+
+
+  <title>价值投资的一些想法 | Focus on Java</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Focus on Java</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://saltyx.github.io/2019/12/27/2019-12-27-价值投资/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="shiyan">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Focus on Java">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">价值投资的一些想法</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-27T12:00:00+08:00">
+                2019-12-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/瞎写/" itemprop="url" rel="index">
+                    <span itemprop="name">瞎写</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2019/12/27/2019-12-27-价值投资/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2019/12/27/2019-12-27-价值投资/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>炒股票好几年了，之前心里一直有个疑惑，炒股是怎么获取收益，又是获取谁的收益？</p>
+<p>一开始是瞎买，竟然还赚了。后面开始研究各种技术指标，什么MACD，金叉死叉，KDJ，量价指标，等等等等。那个时候我觉得只要坚持这些指标买卖，我就能赚钱。可是事实似乎和我想得不打一样，感觉指标的走向是随机的，滞后的。</p>
+<p>后来知道了股票回测这种技术，我专门写了回测代码，跑了最近几年的所有股票的数据。。。发现了一个事实。。。通过这些指标买卖股票，能否赚钱取决当时市场的氛围。。。如果市场处于牛市，那么怎么搞都是对的，反之怎么搞都是错的。。。看到这个结果我是有点意外的。</p>
+<p>后来我尝试回测了打板的概率，这个我用了量价指标来算的，比如放量首板，然后追第二板这种模式来回测，这个模型比较简单，我就直接用了同花顺回测，发现盈利的概率只有40%多。。。这让我更迷惑了，炒股真的是一种完全随机游戏吗？类似掷硬币吗？</p>
+<p>后来我了解了价值投资，防御型投资，知道了另一种理念，“好股好价”。仔细想了想，股票和债券之间的相似与不同。股票可以通过红利/股息获取收益，债券通过票面利率获取收益，但是股票是否有股息是取决于企业。债券到期之后付本息，票面的价格和利息是不变的，但是股票不一样，其票面价格会有很大的波动。</p>
+<p>可以看到和债券相比，股票有两种方式获取收益，一个是价格上涨，一个是股息。但是其本质是一样的，股票能否盈利，和企业有着必然联系。好的企业，利润每年稳定增长，企业内在价值不断提升，通过给股东分红，回报股东，同时企业不断地发展带动其票面价格上涨。</p>
+<p>所以，要想获取较高的收益，那一定要以合适或者较低的价格买入好企业的股票，并长期持有。核心因素，低价，好企业。</p>
+<p>股票的价格是一个比较重要的因素，如果在一个企业高估时买入，这样其实是比较危险的，一般一个企业被高估都是因为其高速的增长，如果这个公司仍保持高速增长，那么股价将会维持高位，那还好，但是如果公司有一点闪失，你的利益将会大打折扣，可能你的本金没有损失，但是也要考虑到机会成本。</p>
+<p>公司有高估就有低估的，有时候公司可能一个因为短期的事件，市场情绪或者市场偏见导致股价大幅下跌或者被低估，但是其本身的盈利能力或者核心价值没有改变，那就可以考虑考虑。</p>
+<p>股票对标的企业是另外一个核心因素，如果长期持有股票，我们必须得确定这个公司能够活得很好，必须是家好企业，行业龙头，行业龙头有更大得机会保持稳定高速增长，并且其面临困境处理能力也会比一般公司强很多，这也意味着行业处于寒冬时，它依然可以过得不错。</p>
+<p>好股好价是获得高收益的关键，但是好公司，龙头企业一般价格都不会低，作为一个没有多少专业能力的普通投资者，我就不奢望能以较低的价格买入这些好公司了，合理的价格买入就可以了，但是绝不能以高估的价格买入。这时候就有另一个问题，如何判断企业高估，这里面就比较复杂了，我也在不断学习。作为一个普通的投资者，一定要谦虚不可盲目，我个人不喜欢市盈率高于30的企业，我觉得其溢价太高，我的能力还不足以“把控”这种企业，但是有些行业其市盈率就普遍偏高，例如高科技行业，这也是为啥我科技股仓位极低，而且持有的也是一些相对较低PE的。或许我会错过，但是要清楚自己的定位，普通投资者，或者叫防御型投资者。</p>
+<p>通过以上的分析，最开始的两个问题，就迎刃而解了。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    shiyan
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://saltyx.github.io/2019/12/27/2019-12-27-价值投资/" title="价值投资的一些想法">https://saltyx.github.io/2019/12/27/2019-12-27-价值投资/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/瞎写/" rel="tag"># 瞎写</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/10/27/2019-10-27-threadpool/" rel="next" title="ThreadPoolExecutor">
+                <i class="fa fa-chevron-left"></i> ThreadPoolExecutor
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/03/24/2020-03-24-wildcard_matching/" rel="prev" title="leetcode Wildcard Matching 题解 动态规划">
+                leetcode Wildcard Matching 题解 动态规划 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">shiyan</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/saltyx" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:shiyan9128@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shiyan</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://shiy4n.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'https://saltyx.github.io/2019/12/27/2019-12-27-价值投资/';
+          this.page.identifier = '2019/12/27/2019-12-27-价值投资/';
+          this.page.title = '价值投资的一些想法';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://shiy4n.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

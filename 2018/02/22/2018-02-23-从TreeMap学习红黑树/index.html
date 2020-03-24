@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/favicon.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/assets/images/favicon.png?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="数据结构,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="红黑树是一种自平衡二叉查找树，常用于键值对存储，例如Java的TreeMap中就采用红黑树实现。它可以在O(logN)时间内查找、插入和删除  红黑树定义与性质 红黑树定义   点是红色或者黑色  根节点是黑色  所有叶子节点是黑色（null节点）  每个红色节点都必须要有两个黑色子节点  从任一节点到叶子节点都包含同样数目的黑色节点    红黑树性质  根据红黑树的定义，从根到叶子的最长路径不">
+<meta name="keywords" content="数据结构">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从TreeMap学习红黑树">
+<meta property="og:url" content="https://saltyx.github.io/2018/02/22/2018-02-23-从TreeMap学习红黑树/index.html">
+<meta property="og:site_name" content="Focus on Java">
+<meta property="og:description" content="红黑树是一种自平衡二叉查找树，常用于键值对存储，例如Java的TreeMap中就采用红黑树实现。它可以在O(logN)时间内查找、插入和删除  红黑树定义与性质 红黑树定义   点是红色或者黑色  根节点是黑色  所有叶子节点是黑色（null节点）  每个红色节点都必须要有两个黑色子节点  从任一节点到叶子节点都包含同样数目的黑色节点    红黑树性质  根据红黑树的定义，从根到叶子的最长路径不">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/3672344-2a3f9b46663b3886.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/3672344-3632fea6fc418649.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/3672344-0d51be85a875b888.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/3672344-33c7ceb3526db8bc.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/3672344-59757bd7987eacc7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/3672344-8f9eb09f1dfd0309.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/3672344-9ea679a710829e61.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/3672344-75c3ba675ba071e8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/3672344-28c29013831cbba0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/3672344-321618806fc8cf15.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/3672344-d1ba27f571519f1a.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/3672344-206d24774bce1c2e.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/3672344-231a60842665ae1c.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/3672344-c1b92eacba57a41d.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/3672344-64d154a2ea6e3ddf.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/3672344-2c7203fa028b7e9c.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/3672344-29d0678263ddede4.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2019-08-26T13:32:14.819Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从TreeMap学习红黑树">
+<meta name="twitter:description" content="红黑树是一种自平衡二叉查找树，常用于键值对存储，例如Java的TreeMap中就采用红黑树实现。它可以在O(logN)时间内查找、插入和删除  红黑树定义与性质 红黑树定义   点是红色或者黑色  根节点是黑色  所有叶子节点是黑色（null节点）  每个红色节点都必须要有两个黑色子节点  从任一节点到叶子节点都包含同样数目的黑色节点    红黑树性质  根据红黑树的定义，从根到叶子的最长路径不">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/3672344-2a3f9b46663b3886.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://saltyx.github.io/2018/02/22/2018-02-23-从TreeMap学习红黑树/">
+
+
+
+
+
+  <title>从TreeMap学习红黑树 | Focus on Java</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Focus on Java</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://saltyx.github.io/2018/02/22/2018-02-23-从TreeMap学习红黑树/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="shiyan">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Focus on Java">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">从TreeMap学习红黑树</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-22T15:00:00+08:00">
+                2018-02-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/02/22/2018-02-23-从TreeMap学习红黑树/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/02/22/2018-02-23-从TreeMap学习红黑树/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>红黑树是一种自平衡二叉查找树，常用于键值对存储，例如Java的TreeMap中就采用红黑树实现。它可以在O(logN)时间内查找、插入和删除</p>
+</blockquote>
+<h2 id="红黑树定义与性质"><a href="#红黑树定义与性质" class="headerlink" title="红黑树定义与性质"></a>红黑树定义与性质</h2><blockquote>
+<p>红黑树定义</p>
+</blockquote>
+<ol>
+<li><p>点是红色或者黑色</p>
+</li>
+<li><p>根节点是黑色</p>
+</li>
+<li><p>所有叶子节点是黑色（null节点）</p>
+</li>
+<li><p>每个红色节点都必须要有两个黑色子节点</p>
+</li>
+<li><p>从任一节点到叶子节点都包含同样数目的黑色节点</p>
+</li>
+</ol>
+<blockquote>
+<p>红黑树性质</p>
+</blockquote>
+<p>根据红黑树的定义，从根到叶子的最长路径不多于最短的两倍。由于<code>性质4</code>每个红色节点均有两个黑色节点，<code>性质5</code>限制了黑色节点的数目，这样可以限制最短的路径为全是黑色节点的，而最长的路径为红黑节点交替的路径</p>
+<h2 id="TreeMap中红黑树"><a href="#TreeMap中红黑树" class="headerlink" title="TreeMap中红黑树"></a>TreeMap中红黑树</h2><p>红黑树仍是一个<code>二叉排序树</code>，如果是二叉排序树那么</p>
+<ul>
+<li><p>若左子树不空，则左子树上的值均小于它的根节点</p>
+</li>
+<li><p>若右子树不空，则右子树上的值均大于它的根节点</p>
+</li>
+<li><p>它的左右字数也分别为排序二叉树</p>
+</li>
+</ul>
+<p>那么，对一棵二叉排序树进行中序遍历就可以得到排序后的结果</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/3672344-2a3f9b46663b3886.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="二叉排序树.png"></p>
+<p>中序排序后为 <code>1，2，3，4，5，7</code></p>
+<h3 id="树的旋转"><a href="#树的旋转" class="headerlink" title="树的旋转"></a>树的旋转</h3><p>红黑树的旋转可以保持节点符合排序的规则，但是不一定能使其满足红黑树的红黑颜色规则，需要对其进行修复。其操作分为<code>左旋</code>，<code>右旋</code></p>
+<ul>
+<li>左旋</li>
+</ul>
+<p>操作在旋转节点的右子树，将待旋转节点的右节点上升到父节点的位置上</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/3672344-3632fea6fc418649.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="左旋.png"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">rotateLeft</span><span class="params">(RedBlackNode&lt;T&gt; node)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (node != <span class="keyword">null</span>) &#123;</span><br><span class="line">        RedBlackNode&lt;T&gt; rChild = node.right;</span><br><span class="line">        node.right = rChild.left;</span><br><span class="line">        <span class="keyword">if</span> (rChild.left != <span class="keyword">null</span>)</span><br><span class="line">            rChild.left.parent = node;</span><br><span class="line">        rChild.parent = node.parent;</span><br><span class="line">        <span class="keyword">if</span> (node.parent == <span class="keyword">null</span>)</span><br><span class="line">            root = rChild;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (node.parent.left == node)</span><br><span class="line">            node.parent.left = rChild;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            node.parent.right = rChild;</span><br><span class="line">        rChild.left = node;</span><br><span class="line">        node.parent = rChild;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>右旋</li>
+</ul>
+<p>操作在旋转节点的左子树，将待旋转节点的左节点上升到父节点的位置上</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/3672344-0d51be85a875b888.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="右旋.png"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">rotateRight</span><span class="params">(RedBlackNode&lt;T&gt; node)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (node != <span class="keyword">null</span>) &#123;</span><br><span class="line">        RedBlackNode&lt;T&gt; lChild = node.left;</span><br><span class="line">        node.left = lChild.right;</span><br><span class="line">        <span class="keyword">if</span> (lChild.right != <span class="keyword">null</span>)</span><br><span class="line">            lChild.parent = node;</span><br><span class="line">        lChild.parent = node.parent;</span><br><span class="line">        <span class="keyword">if</span> (node.parent == <span class="keyword">null</span>)</span><br><span class="line">            root = lChild;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (node.parent.left == node)</span><br><span class="line">            node.parent.left = lChild;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            node.parent.right = lChild;</span><br><span class="line">        lChild.right = node;</span><br><span class="line">        node.parent = lChild;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="红黑树的插入"><a href="#红黑树的插入" class="headerlink" title="红黑树的插入"></a>红黑树的插入</h3><p>红黑树的插入，首先确认插入的位置</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> T <span class="title">insert</span><span class="params">(<span class="keyword">final</span> RedBlackNode&lt;T&gt; newNode)</span> </span>&#123;</span><br><span class="line">    RedBlackNode&lt;T&gt; t = root;</span><br><span class="line">    <span class="keyword">if</span> (t == <span class="keyword">null</span>) &#123; <span class="comment">// 如果为空树</span></span><br><span class="line">        root = newNode;</span><br><span class="line">        size = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">return</span> newNode.key;</span><br><span class="line">    &#125;</span><br><span class="line">    RedBlackNode&lt;T&gt; parent;</span><br><span class="line">    <span class="keyword">int</span> cmp;</span><br><span class="line">    <span class="keyword">do</span> &#123;</span><br><span class="line">        parent = t;</span><br><span class="line">        cmp = compare(newNode, t);</span><br><span class="line">        <span class="keyword">if</span> (cmp &lt; <span class="number">0</span>) &#123;</span><br><span class="line">            t = t.left;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (cmp &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            t = t.right;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> t.key;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">while</span> (t != <span class="keyword">null</span>); <span class="comment">// 查找到合适的位置</span></span><br><span class="line"></span><br><span class="line">    newNode.parent = parent;</span><br><span class="line">    <span class="keyword">if</span> (cmp &lt; <span class="number">0</span>) &#123;</span><br><span class="line">        parent.left = newNode;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        parent.right = newNode;</span><br><span class="line">    &#125;</span><br><span class="line">    fixInsertion(newNode);</span><br><span class="line">    size++;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="红黑树插入修复"><a href="#红黑树插入修复" class="headerlink" title="红黑树插入修复"></a>红黑树插入修复</h4><p>插入之后需要对树进行修复，使其满足红黑树的性质</p>
+<p>其中，</p>
+<ul>
+<li><p>如果插入的是根节点，将新加入节点涂黑，对树没有影响，直接插入</p>
+</li>
+<li><p>如果插入的节点的父节点为黑色节点，对树没有影响</p>
+</li>
+</ul>
+<p>但是，当遇到</p>
+<ol>
+<li>当前节点的父节点是红色并且叔叔节点是红色 </li>
+</ol>
+<p>插入新节点为颜色为红色，不符合红黑树定义。需要进行调整</p>
+<p>假如叔叔节点为祖父节点的右孩子。那么插入修复需要将当前节点的父亲节点和叔叔节点的颜色改为黑色，并将祖父节点变更为红色，当前节点指向祖父节点，继续进行修复</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/3672344-33c7ceb3526db8bc.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="修复前"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/3672344-59757bd7987eacc7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="修复后"></p>
+<ol start="2">
+<li>当前节点的父节点为红色，叔叔节点为黑色，当前节点为父节点的右节点</li>
+</ol>
+<p>同样不符合红黑树定义</p>
+<p>如果当前节点的父节点为祖父节点的左孩子，则将当前节点指向当前节点的父节点，对新当前节点左旋</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/3672344-8f9eb09f1dfd0309.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="修复前"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/3672344-9ea679a710829e61.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="修复后"></p>
+<p>情况2修复完成之后，需要继续进行情况3的修复</p>
+<ol start="3">
+<li>当前节点的父节点为红色，叔叔节点为黑色，当前节点为父节点左节点</li>
+</ol>
+<p>如果当前节点的父节点是祖父节点的左孩子，则将父节点变为黑色，祖父节点变为红色，并且以祖父节点为支点右旋</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/3672344-75c3ba675ba071e8.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="修复前"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/3672344-28c29013831cbba0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="修复后"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">fixInsertion</span><span class="params">(RedBlackNode&lt;T&gt; node)</span> </span>&#123;</span><br><span class="line">    node.color = RED;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (node != <span class="keyword">null</span> &amp;&amp; node != root &amp;&amp; colorOf(parentOf(node)) == RED &#123;</span><br><span class="line">        <span class="keyword">if</span> (parentOf(node) == leftOf(ancestorOf(node))) &#123;</span><br><span class="line">            <span class="comment">// 当前的父节点是祖父节点的左孩子</span></span><br><span class="line">            RedBlackNode&lt;T&gt; uncle = rightOf(ancestorOf(node));</span><br><span class="line">            <span class="keyword">if</span> (colorOf(uncle) == RED) &#123;</span><br><span class="line">                setColor(parentOf(node), BLACK);</span><br><span class="line">                setColor(uncle, BLACK);</span><br><span class="line">                setColor(ancestorOf(node), RED);</span><br><span class="line">                node = ancestorOf(node);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">if</span> (node == rightOf(parentOf(node))) &#123;</span><br><span class="line">                    node = parentOf(node);</span><br><span class="line">                    rotateLeft(node);</span><br><span class="line">                &#125;</span><br><span class="line">                setColor(parentOf(node), BLACK);</span><br><span class="line">                setColor(ancestorOf(node), RED);</span><br><span class="line">                rotateRight(ancestorOf(node));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            RedBlackNode&lt;T&gt; uncle = leftOf(ancestorOf(node));</span><br><span class="line">            <span class="keyword">if</span> (colorOf(uncle) == RED) &#123;</span><br><span class="line">                setColor(parentOf(node), BLACK);</span><br><span class="line">                setColor(uncle, BLACK);</span><br><span class="line">                setColor(ancestorOf(node), RED);</span><br><span class="line">                node = ancestorOf(node);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">if</span> (node == leftOf(parentOf(node))) &#123;</span><br><span class="line">                    node = parentOf(node);</span><br><span class="line">                    rotateRight(node);</span><br><span class="line">                &#125;</span><br><span class="line">                setColor(parentOf(node), BLACK);</span><br><span class="line">                setColor(ancestorOf(node), RED);</span><br><span class="line">                rotateLeft(ancestorOf(node));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    root.color = BLACK;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>插入的修复过程是不断向走向根节点的，然后把整棵树修复</p>
+<h3 id="红黑树的删除"><a href="#红黑树的删除" class="headerlink" title="红黑树的删除"></a>红黑树的删除</h3><p>删除红黑树中的节点之后，需要对树进行维护使得红黑树仍符合红黑树的定义</p>
+<ol>
+<li><p>如果被删除的节点是叶结点，没有孩子，直接从其父节点中删除此节点即可</p>
+</li>
+<li><p>如果只有一个孩子，则直接将父节点的对应的孩子指向这个孩子即可</p>
+</li>
+<li><p>如果有两个孩子，情况会复杂点。首先需要保证符合排序二叉树的性质。删除此结点之后，可以选择其左子树的最大结点或者右子树的最小结点替换。TreeMap中是寻找了被删除的结点的中序遍历的后继结点，也就是选择了右子树的最小结点来替换这个结点。</p>
+</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">deleteNode</span><span class="params">(RedBlackNode&lt;T&gt; node)</span> </span>&#123;</span><br><span class="line">    size--;</span><br><span class="line">    <span class="keyword">if</span> (node.left != <span class="keyword">null</span> &amp;&amp; node.right != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="comment">// 中序后继节点替代</span></span><br><span class="line">        RedBlackNode&lt;T&gt; next = successor(node);</span><br><span class="line">        <span class="comment">// 注意此时替换了key值</span></span><br><span class="line">        node.key = next.key;</span><br><span class="line">        <span class="comment">// 仅仅替换了引用</span></span><br><span class="line">        node = next;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 对替换的结点 与 被删除的结点进行替换</span></span><br><span class="line">    RedBlackNode&lt;T&gt; replacement = (node.left != <span class="keyword">null</span> ? node.left : node.right);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 对替换的结点的孩子进行连接，并脱离被替换节点</span></span><br><span class="line">    <span class="keyword">if</span> (replacement != <span class="keyword">null</span>) &#123;</span><br><span class="line">        replacement.parent = node.parent;</span><br><span class="line">        <span class="keyword">if</span> (node.parent == <span class="keyword">null</span>)</span><br><span class="line">            root = replacement;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (node == node.parent.left)</span><br><span class="line">            node.parent.left = replacement;</span><br><span class="line">        <span class="keyword">else</span> node.parent.right = replacement;</span><br><span class="line"></span><br><span class="line">        node.left = node.right = node.parent = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (node.color == BLACK)</span><br><span class="line">            fixDeletion(replacement);</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (node.parent == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="comment">// 当前删除的节点是根节点</span></span><br><span class="line">        root = <span class="keyword">null</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (node.color == BLACK)</span><br><span class="line">            fixDeletion(node);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (node.parent != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (node == node.parent.left)</span><br><span class="line">                node.parent.left = <span class="keyword">null</span>;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (node == node.parent.right)</span><br><span class="line">                node.parent.right = <span class="keyword">null</span>;</span><br><span class="line">            node.parent = <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="红黑树删除修复"><a href="#红黑树删除修复" class="headerlink" title="红黑树删除修复"></a>红黑树删除修复</h4><p>如果被删除的结点是红色，则不需要做任何修复即可</p>
+<p>如果被是删除结点是黑色，则有可能会造成红黑树性质被破坏</p>
+<ul>
+<li>如果删除的黑色不是红黑树的唯一结点，那么从被删除结点的分支的黑色结点数必然会不正确，性质5被破坏</li>
+<li>如果被删除结点的唯一非空子结点是红色，且父结点也是红色，违反性质4 </li>
+<li>如果被删除结点为根节点，且其替换结点为红色，违反性质2</li>
+</ul>
+<p>针对以上的情况，分以下解决（讨论当前结点为父结点左孩子）</p>
+<blockquote>
+<p>“下面我们用一个分析技巧：我们从被删结点后来顶替它的那个结点开始调整，并认为它有额外的一重黑色。这里额外一重黑色是什么意思呢，我们不是把红黑树的结点加上除红与黑的另一种颜色，这里只是一种假设，我们认为我们当前指向它，因此空有额外一种黑色，可以认为它的黑色是从它的父结点被删除后继承给它的，它现在可以容纳两种颜色，如果它原来是红色，那么现在是红+黑，如果原来是黑色，那么它现在的颜色是黑+黑。有了这重额外的黑色，原红黑树性质5就能保持不变。现在只要恢复其它性质就可以了，做法还是尽量向根移动和穷举所有可能性。”–saturnman</p>
+</blockquote>
+<ol>
+<li>当前结点（被替换的结点）为黑色+黑色，且兄弟结点为红色</li>
+</ol>
+<p>此时父结点为黑色，并且兄弟的孩子结点也都为黑色，那么把父结点染红，兄弟结点染黑，之后以父结点为点左旋，更新下兄弟节点。这样转化问题为兄弟节点为黑色的问题。这时替换结点上仍有一重黑色，继续进入算法</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/3672344-321618806fc8cf15.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="修复前"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/3672344-d1ba27f571519f1a.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="修复后"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (colorOf(sibling) == RED) &#123;</span><br><span class="line">    setColor(sibling, BLACK);</span><br><span class="line">    setColor(parentOf(node), RED);</span><br><span class="line">    rotateLeft(parentOf(node));</span><br><span class="line">    sibling = rightOf(parentOf(node));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>当前为黑+黑，兄弟节点为黑色，且兄弟节点的孩子也为黑色</li>
+</ol>
+<p>这时候需要将当前结点和兄弟节点中剥离出来一层黑色给他们的父结点。那么当前为黑+黑，因此还是黑色，而兄弟结点只有一层黑色，因此变为红色，如果父结点为红色，则算法结束，否则继续以父结点为当前结点继续进行算法</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/3672344-206d24774bce1c2e.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="修复前"><br><img src="http://upload-images.jianshu.io/upload_images/3672344-231a60842665ae1c.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="修复后"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (colorOf(leftOf(sibling)) == BLACK &amp;&amp;</span><br><span class="line">        colorOf(rightOf(sibling)) == BLACK) &#123;</span><br><span class="line">    setColor(sibling, RED);</span><br><span class="line">    node = parentOf(node);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>当前为黑+黑，兄弟结点为黑色，且兄弟结点的左孩子为红色，右孩子为黑色</li>
+</ol>
+<p>这种情况需要转化为情况4，因此将兄弟结点染红，兄弟的左子染黑，之后右旋，更新兄弟结点</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/3672344-c1b92eacba57a41d.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="修复前"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/3672344-64d154a2ea6e3ddf.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="修复后"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (colorOf(rightOf(sibling)) == BLACK) &#123;</span><br><span class="line">    setColor(leftOf(sibling), RED);</span><br><span class="line">    setColor(sibling, RED);</span><br><span class="line">    rotateRight(sibling);</span><br><span class="line">    sibling = rightOf(parentOf(node));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>当前结点为黑+黑，兄弟结点为黑色，且兄弟结点的右孩子为红色，左孩子为任意颜色</li>
+</ol>
+<p>将兄弟结点染成父结点颜色，父结点染成黑色，兄弟结点右孩子染黑，以父结点为支点左旋。当前结点设为根节点，调整结束</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/3672344-2c7203fa028b7e9c.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="修复前"></p>
+<p><img src="http://upload-images.jianshu.io/upload_images/3672344-29d0678263ddede4.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="修复后"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">setColor(sibling, colorOf(parentOf(node)));</span><br><span class="line">setColor(parentOf(node), BLACK);</span><br><span class="line">setColor(rightOf(sibling), BLACK);</span><br><span class="line">rotateLeft(parentOf(node));</span><br><span class="line">node = root;</span><br></pre></td></tr></table></figure>
+
+<p>其实这个修复删除的过程就是调整替代结点的多加的这层黑色，使其能够补偿到被删除的黑色结点，这样就可以在保持红黑树的性质。</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><ul>
+<li><p><a href="https://tech.meituan.com/redblack-tree.html" target="_blank" rel="noopener">红黑树深入剖析及Java实现</a></p>
+</li>
+<li><p><a href="https://github.com/julycoding/The-Art-Of-Programming-By-July/blob/master/ebook/zh/03.01.md" target="_blank" rel="noopener">教你透彻了解红黑树</a></p>
+</li>
+</ul>
+<h3 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br><span class="line">319</span><br><span class="line">320</span><br><span class="line">321</span><br><span class="line">322</span><br><span class="line">323</span><br><span class="line">324</span><br><span class="line">325</span><br><span class="line">326</span><br><span class="line">327</span><br><span class="line">328</span><br><span class="line">329</span><br><span class="line">330</span><br><span class="line">331</span><br><span class="line">332</span><br><span class="line">333</span><br><span class="line">334</span><br><span class="line">335</span><br><span class="line">336</span><br><span class="line">337</span><br><span class="line">338</span><br><span class="line">339</span><br><span class="line">340</span><br><span class="line">341</span><br><span class="line">342</span><br><span class="line">343</span><br><span class="line">344</span><br><span class="line">345</span><br><span class="line">346</span><br><span class="line">347</span><br><span class="line">348</span><br><span class="line">349</span><br><span class="line">350</span><br><span class="line">351</span><br><span class="line">352</span><br><span class="line">353</span><br><span class="line">354</span><br><span class="line">355</span><br><span class="line">356</span><br><span class="line">357</span><br><span class="line">358</span><br><span class="line">359</span><br><span class="line">360</span><br><span class="line">361</span><br><span class="line">362</span><br><span class="line">363</span><br><span class="line">364</span><br><span class="line">365</span><br><span class="line">366</span><br><span class="line">367</span><br><span class="line">368</span><br><span class="line">369</span><br><span class="line">370</span><br><span class="line">371</span><br><span class="line">372</span><br><span class="line">373</span><br><span class="line">374</span><br><span class="line">375</span><br><span class="line">376</span><br><span class="line">377</span><br><span class="line">378</span><br><span class="line">379</span><br><span class="line">380</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> me.learn.datastruct;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.LinkedList;</span><br><span class="line"><span class="keyword">import</span> java.util.Queue;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RedBlackTree</span>&lt;<span class="title">T</span> <span class="keyword">extends</span> <span class="title">Comparable</span>&lt;<span class="title">T</span>&gt;&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">transient</span> RedBlackNode&lt;T&gt; root;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">transient</span> <span class="keyword">int</span> size = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">add</span><span class="params">(T key)</span> </span>&#123;</span><br><span class="line">        RedBlackNode&lt;T&gt; node = <span class="keyword">new</span> RedBlackNode&lt;&gt;(key);</span><br><span class="line">        insert(node);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">remove</span><span class="params">(T key)</span> </span>&#123;</span><br><span class="line">        RedBlackNode&lt;T&gt; node = getNode(key);</span><br><span class="line">        <span class="keyword">if</span> (node == <span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        deleteNode(node);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">deleteNode</span><span class="params">(RedBlackNode&lt;T&gt; node)</span> </span>&#123;</span><br><span class="line">        size--;</span><br><span class="line">        <span class="keyword">if</span> (node.left != <span class="keyword">null</span> &amp;&amp; node.right != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="comment">// 中序后继节点替代</span></span><br><span class="line">            RedBlackNode&lt;T&gt; next = successor(node);</span><br><span class="line">            node.key = next.key;</span><br><span class="line">            node = next;</span><br><span class="line">        &#125;</span><br><span class="line">        RedBlackNode&lt;T&gt; replacement = (node.left != <span class="keyword">null</span> ? node.left : node.right);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (replacement != <span class="keyword">null</span>) &#123;</span><br><span class="line">            replacement.parent = node.parent;</span><br><span class="line">            <span class="keyword">if</span> (node.parent == <span class="keyword">null</span>)</span><br><span class="line">                root = replacement;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (node == node.parent.left)</span><br><span class="line">                node.parent.left = replacement;</span><br><span class="line">            <span class="keyword">else</span> node.parent.right = replacement;</span><br><span class="line"></span><br><span class="line">            node.left = node.right = node.parent = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (node.color == BLACK)</span><br><span class="line">                fixDeletion(replacement);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (node.parent == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="comment">// 当前删除的节点是根节点</span></span><br><span class="line">            root = <span class="keyword">null</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (node.color == BLACK)</span><br><span class="line">                fixDeletion(node);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (node.parent != <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (node == node.parent.left)</span><br><span class="line">                    node.parent.left = <span class="keyword">null</span>;</span><br><span class="line">                <span class="keyword">else</span> <span class="keyword">if</span> (node == node.parent.right)</span><br><span class="line">                    node.parent.right = <span class="keyword">null</span>;</span><br><span class="line">                node.parent = <span class="keyword">null</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">fixDeletion</span><span class="params">(RedBlackNode&lt;T&gt; node)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">while</span> (node != root &amp;&amp; colorOf(node) == BLACK) &#123;</span><br><span class="line">            <span class="keyword">if</span> (node == leftOf(parentOf(node))) &#123;</span><br><span class="line">                RedBlackNode&lt;T&gt; sibling = rightOf(parentOf(node));</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (colorOf(sibling) == RED) &#123;</span><br><span class="line">                    setColor(sibling, BLACK);</span><br><span class="line">                    setColor(parentOf(node), RED);</span><br><span class="line">                    rotateLeft(parentOf(node));</span><br><span class="line">                    sibling = rightOf(parentOf(node));</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (colorOf(leftOf(sibling)) == BLACK &amp;&amp;</span><br><span class="line">                        colorOf(rightOf(sibling)) == BLACK) &#123;</span><br><span class="line">                    setColor(sibling, RED);</span><br><span class="line">                    node = parentOf(node);</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="keyword">if</span> (colorOf(rightOf(sibling)) == BLACK) &#123;</span><br><span class="line">                        setColor(leftOf(sibling), RED);</span><br><span class="line">                        setColor(sibling, RED);</span><br><span class="line">                        rotateRight(sibling);</span><br><span class="line">                        sibling = rightOf(parentOf(node));</span><br><span class="line">                    &#125;</span><br><span class="line">                    setColor(sibling, colorOf(parentOf(node)));</span><br><span class="line">                    setColor(parentOf(node), BLACK);</span><br><span class="line">                    setColor(rightOf(sibling), BLACK);</span><br><span class="line">                    rotateLeft(parentOf(node));</span><br><span class="line">                    node = root;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                RedBlackNode&lt;T&gt; sibling = leftOf(parentOf(node));</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (colorOf(sibling) == RED) &#123;</span><br><span class="line">                    setColor(sibling, BLACK);</span><br><span class="line">                    setColor(parentOf(node), RED);</span><br><span class="line">                    rotateRight(parentOf(node));</span><br><span class="line">                    sibling = leftOf(parentOf(node));</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (colorOf(rightOf(sibling)) == BLACK &amp;&amp;</span><br><span class="line">                        colorOf(leftOf(sibling)) == BLACK) &#123;</span><br><span class="line">                    setColor(sibling, RED);</span><br><span class="line">                    node = parentOf(node);</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="keyword">if</span> (colorOf(leftOf(sibling)) == BLACK) &#123;</span><br><span class="line">                        setColor(rightOf(sibling), RED);</span><br><span class="line">                        setColor(sibling, RED);</span><br><span class="line">                        rotateLeft(sibling);</span><br><span class="line">                        sibling = leftOf(parentOf(node));</span><br><span class="line">                    &#125;</span><br><span class="line">                    setColor(sibling, colorOf(parentOf(node)));</span><br><span class="line">                    setColor(parentOf(node), BLACK);</span><br><span class="line">                    setColor(leftOf(sibling), BLACK);</span><br><span class="line">                    rotateRight(parentOf(node));</span><br><span class="line">                    node = root;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        setColor(node, BLACK);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * node 中序的后继节点</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> node</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> RedBlackNode&lt;T&gt; <span class="title">successor</span><span class="params">(RedBlackNode&lt;T&gt; node)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (node == <span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">if</span> (node.right != <span class="keyword">null</span>) &#123;</span><br><span class="line">            RedBlackNode&lt;T&gt; t = node.right;</span><br><span class="line">            <span class="keyword">while</span> (t.left != <span class="keyword">null</span>)</span><br><span class="line">                t = t.left;</span><br><span class="line">            <span class="keyword">return</span> t;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            RedBlackNode&lt;T&gt; p = node.parent;</span><br><span class="line">            RedBlackNode&lt;T&gt; child = node;</span><br><span class="line">            <span class="keyword">while</span> (p != <span class="keyword">null</span> &amp;&amp; child == p.right) &#123;</span><br><span class="line">                child = p;</span><br><span class="line">                p = p.parent;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> p;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> RedBlackNode&lt;T&gt; <span class="title">getNode</span><span class="params">(T key)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (key == <span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException();</span><br><span class="line">        RedBlackNode&lt;T&gt; node = root;</span><br><span class="line">        <span class="keyword">while</span> (node != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">int</span> cmp = key.compareTo(node.key);</span><br><span class="line">            <span class="keyword">if</span> (cmp &lt; <span class="number">0</span>)</span><br><span class="line">                node = node.left;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (cmp &gt; <span class="number">0</span>)</span><br><span class="line">                node = node.right;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                <span class="keyword">return</span> node;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> T <span class="title">insert</span><span class="params">(<span class="keyword">final</span> RedBlackNode&lt;T&gt; newNode)</span> </span>&#123;</span><br><span class="line">        RedBlackNode&lt;T&gt; t = root;</span><br><span class="line">        <span class="keyword">if</span> (t == <span class="keyword">null</span>) &#123;</span><br><span class="line">            root = newNode;</span><br><span class="line">            size = <span class="number">1</span>;</span><br><span class="line">            <span class="keyword">return</span> newNode.key;</span><br><span class="line">        &#125;</span><br><span class="line">        RedBlackNode&lt;T&gt; parent;</span><br><span class="line">        <span class="keyword">int</span> cmp;</span><br><span class="line">        <span class="keyword">do</span> &#123;</span><br><span class="line">            parent = t;</span><br><span class="line">            cmp = compare(newNode, t);</span><br><span class="line">            <span class="keyword">if</span> (cmp &lt; <span class="number">0</span>) &#123;</span><br><span class="line">                t = t.left;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (cmp &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                t = t.right;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> t.key;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">while</span> (t != <span class="keyword">null</span>);</span><br><span class="line"></span><br><span class="line">        newNode.parent = parent;</span><br><span class="line">        <span class="keyword">if</span> (cmp &lt; <span class="number">0</span>) &#123;</span><br><span class="line">            parent.left = newNode;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            parent.right = newNode;</span><br><span class="line">        &#125;</span><br><span class="line">        fixInsertion(newNode);</span><br><span class="line">        size++;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">fixInsertion</span><span class="params">(RedBlackNode&lt;T&gt; node)</span> </span>&#123;</span><br><span class="line">        node.color = RED;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> (node != <span class="keyword">null</span> &amp;&amp; node != root &amp;&amp; colorOf(parentOf(node)) == RED) &#123;</span><br><span class="line">            <span class="keyword">if</span> (parentOf(node) == leftOf(ancestorOf(node))) &#123;</span><br><span class="line">                <span class="comment">// 当前的父节点是祖父节点的左孩子</span></span><br><span class="line">                RedBlackNode&lt;T&gt; uncle = rightOf(ancestorOf(node));</span><br><span class="line">                <span class="keyword">if</span> (colorOf(uncle) == RED) &#123;</span><br><span class="line">                    setColor(parentOf(node), BLACK);</span><br><span class="line">                    setColor(uncle, BLACK);</span><br><span class="line">                    setColor(ancestorOf(node), RED);</span><br><span class="line">                    node = ancestorOf(node);</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="keyword">if</span> (node == rightOf(parentOf(node))) &#123;</span><br><span class="line">                        node = parentOf(node);</span><br><span class="line">                        rotateLeft(node);</span><br><span class="line">                    &#125;</span><br><span class="line">                    setColor(parentOf(node), BLACK);</span><br><span class="line">                    setColor(ancestorOf(node), RED);</span><br><span class="line">                    rotateRight(ancestorOf(node));</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                RedBlackNode&lt;T&gt; uncle = leftOf(ancestorOf(node));</span><br><span class="line">                <span class="keyword">if</span> (colorOf(uncle) == RED) &#123;</span><br><span class="line">                    setColor(parentOf(node), BLACK);</span><br><span class="line">                    setColor(uncle, BLACK);</span><br><span class="line">                    setColor(ancestorOf(node), RED);</span><br><span class="line">                    node = ancestorOf(node);</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="keyword">if</span> (node == leftOf(parentOf(node))) &#123;</span><br><span class="line">                        node = parentOf(node);</span><br><span class="line">                        rotateRight(node);</span><br><span class="line">                    &#125;</span><br><span class="line">                    setColor(parentOf(node), BLACK);</span><br><span class="line">                    setColor(ancestorOf(node), RED);</span><br><span class="line">                    rotateLeft(ancestorOf(node));</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        root.color = BLACK;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">rotateLeft</span><span class="params">(RedBlackNode&lt;T&gt; node)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (node != <span class="keyword">null</span>) &#123;</span><br><span class="line">            RedBlackNode&lt;T&gt; rChild = node.right;</span><br><span class="line">            node.right = rChild.left;</span><br><span class="line">            <span class="keyword">if</span> (rChild.left != <span class="keyword">null</span>)</span><br><span class="line">                rChild.left.parent = node;</span><br><span class="line">            rChild.parent = node.parent;</span><br><span class="line">            <span class="keyword">if</span> (node.parent == <span class="keyword">null</span>)</span><br><span class="line">                root = rChild;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (node.parent.left == node)</span><br><span class="line">                node.parent.left = rChild;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                node.parent.right = rChild;</span><br><span class="line">            rChild.left = node;</span><br><span class="line">            node.parent = rChild;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">rotateRight</span><span class="params">(RedBlackNode&lt;T&gt; node)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (node != <span class="keyword">null</span>) &#123;</span><br><span class="line">            RedBlackNode&lt;T&gt; lChild = node.left;</span><br><span class="line">            node.left = lChild.right;</span><br><span class="line">            <span class="keyword">if</span> (lChild.right != <span class="keyword">null</span>)</span><br><span class="line">                lChild.parent = node;</span><br><span class="line">            lChild.parent = node.parent;</span><br><span class="line">            <span class="keyword">if</span> (node.parent == <span class="keyword">null</span>)</span><br><span class="line">                root = lChild;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (node.parent.left == node)</span><br><span class="line">                node.parent.left = lChild;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                node.parent.right = lChild;</span><br><span class="line">            lChild.right = node;</span><br><span class="line">            node.parent = lChild;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">setColor</span><span class="params">(RedBlackNode&lt;T&gt; node, <span class="keyword">boolean</span> color)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (node != <span class="keyword">null</span>) node.color = color;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">colorOf</span><span class="params">(RedBlackNode&lt;T&gt; node)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> node == <span class="keyword">null</span> ? BLACK : node.color;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> RedBlackNode&lt;T&gt; <span class="title">ancestorOf</span><span class="params">(RedBlackNode&lt;T&gt; node)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> parentOf(parentOf(node));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> RedBlackNode&lt;T&gt; <span class="title">parentOf</span><span class="params">(RedBlackNode&lt;T&gt; node)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> node.parent;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> RedBlackNode&lt;T&gt; <span class="title">leftOf</span><span class="params">(RedBlackNode&lt;T&gt; node)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> node.left;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> RedBlackNode&lt;T&gt; <span class="title">rightOf</span><span class="params">(RedBlackNode&lt;T&gt; node)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> node.right;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">compare</span><span class="params">(RedBlackNode&lt;T&gt; t1, RedBlackNode&lt;T&gt; t2)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> t1.key.compareTo(t2.key);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">boolean</span> BLACK = <span class="keyword">true</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">boolean</span> RED = <span class="keyword">false</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">RedBlackNode</span>&lt;<span class="title">T</span> <span class="keyword">extends</span> <span class="title">Comparable</span>&lt;<span class="title">T</span>&gt;&gt; </span>&#123;</span><br><span class="line">        T key;</span><br><span class="line">        RedBlackNode&lt;T&gt; left;</span><br><span class="line">        RedBlackNode&lt;T&gt; right;</span><br><span class="line">        RedBlackNode&lt;T&gt; parent;</span><br><span class="line">        <span class="keyword">boolean</span> color = BLACK;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">RedBlackNode</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">RedBlackNode</span><span class="params">(T key)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">this</span>.key = key;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">RedBlackNode</span><span class="params">(T key, RedBlackNode&lt;T&gt; parent)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">this</span>.key = key;</span><br><span class="line">            <span class="keyword">this</span>.parent = parent;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            String result = <span class="string">""</span>;</span><br><span class="line">            <span class="keyword">return</span> color == RED &amp;&amp; parent != <span class="keyword">null</span> ?</span><br><span class="line">                    String.format(<span class="string">"[Red][parent[%s]][key[%s]]"</span>, parent.key, key)</span><br><span class="line">                    : color == BLACK &amp;&amp; parent != <span class="keyword">null</span> ?</span><br><span class="line">                    String.format(<span class="string">"[BLK][parent[%s]][key[%s]]"</span>, parent.key, key)</span><br><span class="line">                    : String.format(<span class="string">"ROOT[key[%s]]"</span>, key);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">printTree</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        RedBlackNode&lt;T&gt; rootData = root;</span><br><span class="line">        Queue&lt;RedBlackNode&lt;T&gt;&gt; queue = <span class="keyword">new</span> LinkedList&lt;&gt;();</span><br><span class="line">        Queue&lt;RedBlackNode&lt;T&gt;&gt; queue1 = <span class="keyword">new</span> LinkedList&lt;&gt;();</span><br><span class="line">        queue.offer(rootData);</span><br><span class="line">        <span class="keyword">boolean</span> isDefaultQueue = <span class="keyword">true</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> (!queue.isEmpty() || !queue1.isEmpty()) &#123;</span><br><span class="line">            Queue&lt;RedBlackNode&lt;T&gt;&gt; mQueue = isDefaultQueue ? queue : queue1;</span><br><span class="line">            RedBlackNode&lt;T&gt; node = mQueue.poll();</span><br><span class="line">            <span class="keyword">if</span> (node != <span class="keyword">null</span>) &#123;</span><br><span class="line">                String nodeInfo = <span class="string">""</span>;</span><br><span class="line">                <span class="keyword">if</span> (node.parent != <span class="keyword">null</span>) &#123;</span><br><span class="line">                    <span class="keyword">if</span> (node == node.parent.left)</span><br><span class="line">                        nodeInfo = <span class="string">"[LE]"</span>;</span><br><span class="line">                    <span class="keyword">else</span></span><br><span class="line">                        nodeInfo = <span class="string">"[RH]"</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span> (node.left != <span class="keyword">null</span>) &#123;</span><br><span class="line">                    (isDefaultQueue ? queue1 : queue).offer(node.left);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span> (node.right != <span class="keyword">null</span>) &#123;</span><br><span class="line">                    (isDefaultQueue ? queue1 : queue).offer(node.right);</span><br><span class="line">                &#125;</span><br><span class="line">                System.out.print(nodeInfo + node + <span class="string">"\t"</span>);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                System.out.println();</span><br><span class="line">                isDefaultQueue = !isDefaultQueue;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] argv)</span> </span>&#123;</span><br><span class="line">        RedBlackTree&lt;Integer&gt; tree = <span class="keyword">new</span> RedBlackTree&lt;&gt;();</span><br><span class="line">        tree.add(<span class="number">1</span>);</span><br><span class="line">        tree.add(<span class="number">2</span>);</span><br><span class="line">        tree.add(<span class="number">3</span>);</span><br><span class="line">        tree.add(<span class="number">4</span>);</span><br><span class="line">        tree.add(<span class="number">5</span>);</span><br><span class="line">        tree.add(<span class="number">10</span>);</span><br><span class="line">        tree.printTree();</span><br><span class="line">        System.out.println(<span class="string">"\n==============================="</span>);</span><br><span class="line">        tree.remove(<span class="number">4</span>);</span><br><span class="line">        tree.printTree();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    shiyan
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://saltyx.github.io/2018/02/22/2018-02-23-从TreeMap学习红黑树/" title="从TreeMap学习红黑树">https://saltyx.github.io/2018/02/22/2018-02-23-从TreeMap学习红黑树/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/数据结构/" rel="tag"># 数据结构</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/06/16/2017-06-17-Java注解处理器/" rel="next" title="Java注解处理器">
+                <i class="fa fa-chevron-left"></i> Java注解处理器
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/02/27/2018-02-27-ForkJoinPool实现快排/" rel="prev" title="ForkJoinPool实现快排">
+                ForkJoinPool实现快排 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">shiyan</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/saltyx" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:shiyan9128@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#红黑树定义与性质"><span class="nav-number">1.</span> <span class="nav-text">红黑树定义与性质</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TreeMap中红黑树"><span class="nav-number">2.</span> <span class="nav-text">TreeMap中红黑树</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#树的旋转"><span class="nav-number">2.1.</span> <span class="nav-text">树的旋转</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#红黑树的插入"><span class="nav-number">2.2.</span> <span class="nav-text">红黑树的插入</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#红黑树插入修复"><span class="nav-number">2.2.1.</span> <span class="nav-text">红黑树插入修复</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#红黑树的删除"><span class="nav-number">2.3.</span> <span class="nav-text">红黑树的删除</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#红黑树删除修复"><span class="nav-number">2.3.1.</span> <span class="nav-text">红黑树删除修复</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考"><span class="nav-number">2.4.</span> <span class="nav-text">参考</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实现"><span class="nav-number">2.5.</span> <span class="nav-text">实现</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shiyan</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://shiy4n.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'https://saltyx.github.io/2018/02/22/2018-02-23-从TreeMap学习红黑树/';
+          this.page.identifier = '2018/02/22/2018-02-23-从TreeMap学习红黑树/';
+          this.page.title = '从TreeMap学习红黑树';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://shiy4n.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

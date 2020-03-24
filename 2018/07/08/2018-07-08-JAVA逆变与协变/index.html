@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/favicon.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/images/favicon.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/assets/images/favicon.png?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Java,">
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="引子《Effective Java》中第25条中《列表优于数组》中提到数组是协变的，相反泛型是不可变的 其实用于描述Java类型转换后的继承关系一共有三种，协变，逆变，不可变 其定义为： 如果A、B表示类型 f(⋅) 表示类型转换，≤ 表示继承关系（比如，A≤B 表示A是由B派生出来的子类）；  f(⋅) 是逆变（contravariant）的，当A≤B时有f(B)≤f(A)成立  f(⋅) 是协">
+<meta name="keywords" content="Java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2018-07-08-Java逆变与协变">
+<meta property="og:url" content="https://saltyx.github.io/2018/07/08/2018-07-08-JAVA逆变与协变/index.html">
+<meta property="og:site_name" content="Focus on Java">
+<meta property="og:description" content="引子《Effective Java》中第25条中《列表优于数组》中提到数组是协变的，相反泛型是不可变的 其实用于描述Java类型转换后的继承关系一共有三种，协变，逆变，不可变 其定义为： 如果A、B表示类型 f(⋅) 表示类型转换，≤ 表示继承关系（比如，A≤B 表示A是由B派生出来的子类）；  f(⋅) 是逆变（contravariant）的，当A≤B时有f(B)≤f(A)成立  f(⋅) 是协">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-08-26T13:33:32.775Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="2018-07-08-Java逆变与协变">
+<meta name="twitter:description" content="引子《Effective Java》中第25条中《列表优于数组》中提到数组是协变的，相反泛型是不可变的 其实用于描述Java类型转换后的继承关系一共有三种，协变，逆变，不可变 其定义为： 如果A、B表示类型 f(⋅) 表示类型转换，≤ 表示继承关系（比如，A≤B 表示A是由B派生出来的子类）；  f(⋅) 是逆变（contravariant）的，当A≤B时有f(B)≤f(A)成立  f(⋅) 是协">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://saltyx.github.io/2018/07/08/2018-07-08-JAVA逆变与协变/">
+
+
+
+
+
+  <title>2018-07-08-Java逆变与协变 | Focus on Java</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Focus on Java</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description"></h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://saltyx.github.io/2018/07/08/2018-07-08-JAVA逆变与协变/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="shiyan">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Focus on Java">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">2018-07-08-Java逆变与协变</h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-07-08T14:24:00+08:00">
+                2018-07-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/07/08/2018-07-08-JAVA逆变与协变/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/07/08/2018-07-08-JAVA逆变与协变/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="引子"><a href="#引子" class="headerlink" title="引子"></a>引子</h2><p>《Effective Java》中第25条中《列表优于数组》中提到<code>数组是协变的，相反泛型是不可变的</code></p>
+<p>其实用于描述Java类型转换后的继承关系一共有三种，<code>协变</code>，<code>逆变</code>，<code>不可变</code></p>
+<p>其定义为：</p>
+<p>如果A、B表示类型 <strong>f(⋅)</strong> 表示类型转换，<strong>≤</strong> 表示继承关系（比如，<strong>A≤B</strong> 表示A是由B派生出来的子类）；</p>
+<ul>
+<li><p><strong>f(⋅)</strong> 是逆变（contravariant）的，当<code>A≤B</code>时有<code>f(B)≤f(A)</code>成立</p>
+</li>
+<li><p><strong>f(⋅)</strong> 是协变（covariant）的，当<code>A≤B</code>时有<code>f(A)≤f(B)</code>成立</p>
+</li>
+<li><p><strong>f(⋅)</strong> 是不变（invariant）的，当<code>A≤B</code>时上述两个式子均不成立，即<code>f(A)与f(B)相互之间没有继承关系</code></p>
+</li>
+</ul>
+<h2 id="协变"><a href="#协变" class="headerlink" title="协变"></a>协变</h2><p>数组是协变的，那就意味着String是Object的子类，则String[] 是 Object[]的子类，但是会有一个问题：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Object[] objArray = <span class="keyword">new</span> Integer[<span class="number">1</span>];</span><br><span class="line">objArray[<span class="number">0</span>] = <span class="string">"a string"</span>;</span><br></pre></td></tr></table></figure>
+
+<p>这段代码是合法的，但是在运行时就会因为类型不符报错</p>
+<h2 id="不可变"><a href="#不可变" class="headerlink" title="不可变"></a>不可变</h2><p>泛型是不可变的，这意味着</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ArrayList&lt;Object&gt; objArray = <span class="keyword">new</span> ArrayList&lt;Object&gt;();</span><br><span class="line">objArray.add(<span class="string">"a string"</span>);</span><br></pre></td></tr></table></figure>
+
+<p>是无法通过编译的。根据不可变的定义，<figure class="highlight plain"><figcaption><span>和 ArrayList<string>没有继承关系```</string></span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">这样的设计是为了保证类型安全，根据《Effective Java》中的说法：</span><br><span class="line"></span><br><span class="line">```java</span><br><span class="line"></span><br><span class="line">    // Why generic array creation is illegal - won&apos;t compile</span><br><span class="line">    List&lt;String&gt;[] stringLists = new ArrayList&lt;String&gt;[1]; // (1)</span><br><span class="line">    List&lt;Integer&gt; intList = Arrays.asList(42);             // (2)</span><br><span class="line">    Object[] objects = stringLists;                        // (3)</span><br><span class="line">    objects[0] = intList;                                  // (4)</span><br><span class="line">    String s = stringLists[0].get(0);                      // (5)</span><br></pre></td></tr></table></figure></p>
+<p>假设(1)是编译正确的，那么在(5)的时候就必然会出现类型不匹配，因为它尝试把整型赋值给字符类型的</p>
+<h2 id="泛型类型中利用通配符-extends-super-来实现协变和逆变"><a href="#泛型类型中利用通配符-extends-super-来实现协变和逆变" class="headerlink" title="泛型类型中利用通配符(extends/super)来实现协变和逆变"></a>泛型类型中利用通配符(extends/super)来实现协变和逆变</h2><p>List&lt;? extends Fruit&gt; 表明每个item是Fruit/Fruit的子类，这其实表明了泛型的上线，实现了协变</p>
+<p>同样，List&lt;? super Fruit&gt; 表明每个item都是Fruit/Furit的基类，这表明了泛型的下线，实现了逆变</p>
+<p>泛型的协变/逆变使用依靠着一个PECS原则，即<code>Provider Extends Consumer Super</code></p>
+<p>还以List为例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 前提为Apple为Fruit的派生子类</span></span><br><span class="line">List&lt;? extends Fruit&gt; list = <span class="keyword">new</span> ArrayList&lt;Apple&gt;();</span><br><span class="line">list.add(<span class="keyword">new</span> Apple());</span><br></pre></td></tr></table></figure>
+
+<p>这样的写法是无法通过编译的，会提示类型不符，因为<code>? extends Furit</code>表明了<code>Furit或者Furit的派生子类</code>。如果我们存入Apple，在get时强转为Apple自然是不会有问题，但是如果我存入Banana，同样是水果，那么在get时就会报错，这样是类型不安全的</p>
+<blockquote>
+<p>泛型通过擦除来实现的，<code>? extends Furit</code>在编译阶段只是一个标记，和数组具体化类型是不一样的</p>
+</blockquote>
+<p>那么作为一个Consumer，应当使用super</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 前提为Apple为Fruit的派生子类</span></span><br><span class="line"> List&lt;? <span class="keyword">super</span> Fruit&gt; list = <span class="keyword">new</span> ArrayList&lt;Food&gt;();</span><br><span class="line"> list.add(<span class="keyword">new</span> Apple());</span><br></pre></td></tr></table></figure>
+
+<p>这段代码是编译通过的，只要类型要求是Fruit/Fruit的基类，那么存入的类型必定可以强转为Fruit/Fruit的基类，是类型安全的</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    shiyan
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://saltyx.github.io/2018/07/08/2018-07-08-JAVA逆变与协变/" title="2018-07-08-Java逆变与协变">https://saltyx.github.io/2018/07/08/2018-07-08-JAVA逆变与协变/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/05/01/2018-05-01-UsingDubboFilterTraceLog/" rel="next" title="利用MDC + dubbo filter记录dubbo日志">
+                <i class="fa fa-chevron-left"></i> 利用MDC + dubbo filter记录dubbo日志
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/11/08/2018-11-08-Java bytecode/" rel="prev" title="译-Java字节码：学会字节码，更上一层楼">
+                译-Java字节码：学会字节码，更上一层楼 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">shiyan</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">31</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/saltyx" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:shiyan9128@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#引子"><span class="nav-number">1.</span> <span class="nav-text">引子</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#协变"><span class="nav-number">2.</span> <span class="nav-text">协变</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#不可变"><span class="nav-number">3.</span> <span class="nav-text">不可变</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#泛型类型中利用通配符-extends-super-来实现协变和逆变"><span class="nav-number">4.</span> <span class="nav-text">泛型类型中利用通配符(extends/super)来实现协变和逆变</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">shiyan</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://shiy4n.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'https://saltyx.github.io/2018/07/08/2018-07-08-JAVA逆变与协变/';
+          this.page.identifier = '2018/07/08/2018-07-08-JAVA逆变与协变/';
+          this.page.title = '2018-07-08-Java逆变与协变';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://shiy4n.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
